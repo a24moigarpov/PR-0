@@ -1,0 +1,112 @@
+// Importar les preguntes
+import preguntes from "./data.js";
+
+// Variables para el temporizador
+let startTime;
+let timerInterval;
+let currentQuestionIndex = 0;
+
+// Función para formatear el tiempo
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+}
+
+// Función para actualizar el temporizador
+function updateTimer() {
+    const currentTime = Math.floor((Date.now() - startTime) / 1000);
+    document.getElementById('timer').textContent = `Temps: ${formatTime(currentTime)}`;
+}
+
+// Función para iniciar el temporizador
+function startGameTimer() {
+    startTime = Date.now();
+    // Actualizar el contador cada segundo
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+// Función para detener el temporizador
+function stopTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+    }
+}
+
+// Función para obtener el tiempo transcurrido
+function getElapsedTime() {
+    return Math.floor((Date.now() - startTime) / 1000);
+}
+
+// Funció per mostrar la pregunta actual
+function mostrarPregunta(pregunta) {
+    if (!pregunta) {
+        // Juego terminado
+        stopTimer();
+        const elapsedTime = getElapsedTime();
+        document.getElementById('partida').innerHTML = `
+            <div class="game-over">
+                <h2>Test Completado</h2>
+                <p>Tiempo total: ${formatTime(elapsedTime)}</p>
+                
+
+                <button onclick="location.reload()">Jugar de nuevo</button>
+            </div>
+        `;
+        return;
+    }
+
+    // Actualizar el índice de la pregunta actual
+    currentQuestionIndex = pregunta.id - 1;
+    
+    // Actualitzar el text de la pregunta
+    document.getElementById('pregunta-text').textContent = pregunta.pregunta;
+    
+    // Actualitzar la imatge
+    const imgElement = document.getElementById('pregunta-imatge');
+    imgElement.src = pregunta.imatge;
+    imgElement.alt = `Imatge de la pregunta ${pregunta.id}`;
+    
+    // Obtenir el contenidor de respostes
+    const respostesDiv = document.getElementById('respostes');
+    respostesDiv.innerHTML = ''; // Netejar respostes anteriors
+    
+    // Afegir cada resposta com un botó
+    pregunta.respostes.forEach(resposta => {
+        const button = document.createElement('button');
+        button.textContent = resposta.etiqueta;
+        button.onclick = () => seleccionarResposta(pregunta.id, resposta.id);
+        respostesDiv.appendChild(button);
+    });
+}
+
+// Funció que s'executa en fer clic a una resposta
+function seleccionarResposta(idPregunta, idResposta) {
+    console.log(`S'ha seleccionat la resposta ${idResposta} de la pregunta ${idPregunta}`);
+    
+    // Comprovar si la resposta és correcta
+    if (idResposta === preguntes[idPregunta - 1].resposta_correcta) {
+        //contar cuantas bien
+        
+        // Pasar a la siguiente pregunta
+        mostrarPregunta(preguntes[idPregunta]);
+        console.log("Correcte");
+        
+    } else {
+        console.log("Incorrecte");
+        // Opcional: Mostrar retroalimentación visual para respuesta incorrecta
+        const buttons = document.querySelectorAll('#respostes button');
+        buttons.forEach(button => {
+            if (parseInt(button.getAttribute('data-answer-id')) === idResposta) {
+                button.style.backgroundColor = '#ff6b6b';
+            } 
+            
+        });
+    }
+}
+
+// Inicialitzar el joc mostrant la primera pregunta
+if (preguntes.length > 0) {
+    startGameTimer();
+    mostrarPregunta(preguntes[0]);
+}

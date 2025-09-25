@@ -1,0 +1,127 @@
+// preguntas.js
+
+const preguntes = [
+    {
+      id: 1,
+      pregunta: "Quina és la velocitat màxima permesa en vies urbanes si no hi ha senyalització específica?",
+      respostes: [
+        { id: 1, etiqueta: "30 km/h" },
+        { id: 2, etiqueta: "50 km/h" },
+        { id: 3, etiqueta: "60 km/h" },
+        { id: 4, etiqueta: "70 km/h" }
+      ],
+      resposta_correcta: 2,
+      imatge: "https://million-wallpapers.ru/wallpapers/5/45/539519283562357/coche-rojo-corriendo-en-la-carretera.jpg"
+    },
+    {
+      id: 2,
+      pregunta: "Què indica un senyal triangular amb un cotxe derrapant?",
+      respostes: [
+        { id: 1, etiqueta: "Paviment relliscós" },
+        { id: 2, etiqueta: "Perill per vehicles pesants" },
+        { id: 3, etiqueta: "Carretera en mal estat" },
+        { id: 4, etiqueta: "Zona escolar" }
+      ],
+      resposta_correcta: 1,
+      imatge: "https://s1.dmcdn.net/v/SLWF01VYGUZ4dNRDP/x1080"
+    },
+    {
+      id: 3,
+      pregunta: "Quina és la taxa màxima d’alcohol en sang per a conductors novells (menys de 2 anys de carnet)?",
+      respostes: [
+        { id: 1, etiqueta: "0,3 g/l" },
+        { id: 2, etiqueta: "0,5 g/l" },
+        { id: 3, etiqueta: "0,15 g/l" },
+        { id: 4, etiqueta: "0,0 g/l" }
+      ],
+      resposta_correcta: 1,
+      imatge: "https://www.autopista.es/uploads/s1/55/77/73/7/5eba6f230ee6946b5134967d-truco-dgt-calcular-distancia-seguridad-coche-que-va-por-delante_4_380x218.jpeg"
+    },
+    {
+      id: 4,
+      pregunta: "Què has de fer si arribes a un semàfor amb llum groga intermitent?",
+      respostes: [
+        { id: 1, etiqueta: "Aturar-se sempre" },
+        { id: 2, etiqueta: "Circular amb precaució" },
+        { id: 3, etiqueta: "Accelerar per passar" },
+        { id: 4, etiqueta: "Donar prioritat als vianants" }
+      ],
+      resposta_correcta: 2,
+      imatge: "https://www.motor.es/fotos-diccionario/2023/02/semaforo_1676481869.jpg"
+    },
+    {
+      id: 5,
+      pregunta: "Quan és obligatori utilitzar el cinturó de seguretat?",
+      respostes: [
+        { id: 1, etiqueta: "Només a vies interurbanes" },
+        { id: 2, etiqueta: "Només a autopistes" },
+        { id: 3, etiqueta: "Sempre, tant en vies urbanes com interurbanes" },
+        { id: 4, etiqueta: "Només en trajectes llargs" }
+      ],
+      resposta_correcta: 3,
+      imatge: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReh6ypnzc9Hp8xznDtrTifrItklQjHq3ptzg&s"
+    },
+    {
+      id: 6,
+      pregunta: "Què significa una línia contínua al centre de la calçada?",
+      respostes: [
+        { id: 1, etiqueta: "Es pot avançar si no venen vehicles" },
+        { id: 2, etiqueta: "Està prohibit avançar i canviar de carril" },
+        { id: 3, etiqueta: "Només per vehicles lents" },
+        { id: 4, etiqueta: "Zona d’aparcament" }
+      ],
+      resposta_correcta: 2,
+      imatge: "https://www.motociclismo.es/uploads/s1/11/80/22/02/linea-continua.jpeg"
+    },
+    {
+      id: 7,
+      pregunta: "Quan és obligatori utilitzar les llums d’encreuament?",
+      respostes: [
+        { id: 1, etiqueta: "Només de nit" },
+        { id: 2, etiqueta: "Quan hi ha poca visibilitat" },
+        { id: 3, etiqueta: "A dins de túnels" },
+        { id: 4, etiqueta: "Totes les anteriors són correctes" }
+      ],
+      resposta_correcta: 4,
+      imatge: "https://www.castelloninformacion.com/wp-content/uploads/2025/01/image1-1.png"
+    },
+    {
+      id: 8,
+      pregunta: "Quin és el significat d’un senyal rodó amb fons blau i una fletxa blanca cap a la dreta?",
+      respostes: [
+        { id: 1, etiqueta: "Prohibit girar a la dreta" },
+        { id: 2, etiqueta: "Obligació de continuar recte" },
+        { id: 3, etiqueta: "Obligació de girar a la dreta" },
+        { id: 4, etiqueta: "Prohibit avançar" }
+      ],
+      resposta_correcta: 3,
+      imatge: "https://img.freepik.com/fotos-premium/senal-carretera-azul-redonda-flecha-blanca-derecha_890156-723.jpg"
+    },
+    {
+      id: 9,
+      pregunta: "Quina distància mínima de seguretat has de mantenir amb el vehicle de davant en una autopista a 120 km/h?",
+      respostes: [
+        { id: 1, etiqueta: "Almenys 50 metres" },
+        { id: 2, etiqueta: "Almenys 70 metres" },
+        { id: 3, etiqueta: "Almenys 100 metres" },
+        { id: 4, etiqueta: "Almenys 150 metres" }
+      ],
+      resposta_correcta: 3,
+      imatge: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTd_PLWCDrsPJ9Ktm26EZlE6cGj_V1ZZoTTnA&s"
+    },
+    {
+      id: 10,
+      pregunta: "Què has de fer si un vianant travessa per un pas de zebra sense semàfor?",
+      respostes: [
+        { id: 1, etiqueta: "Tocar el clàxon i passar" },
+        { id: 2, etiqueta: "Reduir la velocitat però no aturar-se" },
+        { id: 3, etiqueta: "Aturar-se i cedir el pas" },
+        { id: 4, etiqueta: "Avançar ràpidament abans que creui" }
+      ],
+      resposta_correcta: 3,
+      imatge: "https://fotografias.lasexta.com/clipping/cmsimages01/2021/10/20/E379627C-68CA-4843-A810-CAAC924CBE5C/70.jpg?crop=1600,900,x0,y85&width=480&height=270&optimize=high&format=webply"
+    }
+  ];
+  
+  export default preguntes;
+  

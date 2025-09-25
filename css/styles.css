@@ -1,0 +1,47 @@
+/* Estils bàsics per a la pàgina */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+/* Estils per a cada pregunta */
+h3 {
+    margin-top: 20px;
+    color: #2c3e50;
+}
+
+img {
+    width: 800px;       /* ancho fijo */
+    height: 600px;      /* alto fijo */
+    object-fit: cover;  /* recorta la imagen para que encaje */
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+/* Estils per als botons de resposta */
+button {
+    display: block;
+    width: 100%;
+    margin: 5px 0;
+    padding: 10px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #357abd;
+}
