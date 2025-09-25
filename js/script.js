@@ -6,8 +6,37 @@ const NPREGUNTAS = 10; // Cambia según el número de preguntas que quieras usar
 let estatDeLaPartida = {
     contadorPreguntes: 0,
     respostesUsuari: [],
-    preguntasCorrectas: 0
+    preguntasCorrectas: 0,
+    temporizador: 0
 };
+
+// ---------------------------
+// Temporizador
+// ---------------------------
+
+function iniciarTemporizador() {
+    estatDeLaPartida.segundos = 0; // tiempo en segundos
+    estatDeLaPartida.temporizador = setInterval(() => {
+        estatDeLaPartida.segundos++;
+        mostrarTemporizador();
+    }, 1000);
+}
+
+function pararTemporizador() {
+    clearInterval(estatDeLaPartida.temporizador);
+}
+
+function mostrarTemporizador() {
+    const temporizador = document.getElementById("temporizador");
+    if (!temporizador) return;
+
+    let minutos = Math.floor(estatDeLaPartida.segundos / 60);
+    let segundos = estatDeLaPartida.segundos % 60;
+    let segundosStr = segundos < 10 ? `0${segundos}` : segundos;
+
+    temporizador.innerHTML = `Tiempo: ${minutos}:${segundosStr}`;
+}
+
 
 // ---------------------------
 // Funciones principales
@@ -52,6 +81,8 @@ window.marcarRespuesta = marcarRespuesta;
 // ---------------------------
 async function imprimirJuego() {
     try {
+        //iniciar temporizador
+        iniciarTemporizador();
         const response = await fetch("./js/data.json");
         if (!response.ok) throw new Error("No se pudo cargar data.json");
 
@@ -125,8 +156,12 @@ async function imprimirJuego() {
                         p.textContent = `Respostes correctes: ${correctes}/${NPREGUNTAS}`;
                         marcador.appendChild(p);
                     } else {
+
                         alert(`Respostes correctes: ${correctes}/${NPREGUNTAS}`);
+
                     }
+                    pararTemporizador();
+
                 })
                 .catch(err => console.error('Error enviant respostes:', err));
             });

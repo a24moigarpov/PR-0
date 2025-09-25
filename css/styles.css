@@ -21,7 +21,7 @@ h3 {
 
 img {
     width: 800px;       /* ancho fijo */
-    height: 600px;      /* alto fijo */
+    height: 8000px;      /* alto fijo */
     object-fit: cover;  /* recorta la imagen para que encaje */
     border-radius: 4px;
     margin: 10px 0;
