@@ -96,8 +96,10 @@ async function imprimirJuego() {
             const preguntaObj = data[i]; // accedemos directamente al objeto de la pregunta
 
             htmlString += `<h3>${preguntaObj.pregunta}</h3>`;
-            htmlString += `<img src="${preguntaObj.imatge}" alt="Pregunta ${i+1}" style="max-width:300px; display:block; margin:8px 0;">`;
-
+            
+            htmlString += `<img class="img" src="${preguntaObj.imatge}" alt="Pregunta ${i+1}">`;
+           
+            
             for (let j = 0; j < preguntaObj.respostes.length; j++) {
                 htmlString += `<button class="btn btn-primary w-100 my-2" 
                                     data-pregunta="${i}" 

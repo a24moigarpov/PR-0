@@ -20,11 +20,14 @@ h3 {
 }
 
 img {
-    width: 800px;       /* ancho fijo */
-    height: 8000px;      /* alto fijo */
-    object-fit: cover;  /* recorta la imagen para que encaje */
-    border-radius: 4px;
-    margin: 10px 0;
+    width: 150%;           /* que ocupe todo el ancho del contenedor */
+    max-width: 700px;      /* tamaño máximo para móviles */
+    height: 260px;          /* alto fijo */
+    object-fit: cover;      /* recorta para encajar sin deformar */
+    border-radius: 8px;     /* esquinas redondeadas */
+    margin: 10px auto;      /* margen arriba/abajo y centrado horizontal */
+    display: block;         /* necesario para centrar con margin auto */
+    text-align: center;
 }
 
 /* Estils per als botons de resposta */
