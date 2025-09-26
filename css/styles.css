@@ -54,6 +54,27 @@ button:hover {
     color: white !important;
 }
 
+/* Modo revisión: correcta en verde, incorrecta seleccionada en rojo */
+.btn-correcta {
+    background-color: #28a745 !important; /* verde */
+    color: #fff !important;
+}
+
+.btn-incorrecta {
+    background-color: #dc3545 !important; /* rojo */
+    color: #fff !important;
+}
+
+/* Bloqueo visual de botones una vez enviado */
+button:disabled {
+    opacity: 0.9;
+    cursor: not-allowed;
+}
+
+button:disabled:hover {
+    background-color: inherit; /* no cambiar color al pasar el ratón */
+}
+
 
 #marcador {
     position: fixed;       /* siempre visible en la ventana */

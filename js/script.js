@@ -130,13 +130,18 @@ function mostrarPregunta(idx) {
 
     contenidor.innerHTML = htmlString;
 
-   // Delegación eventos respuestas
-        contenidor.querySelectorAll("button[data-pregunta]").forEach(btn => {
+    // Delegación eventos respuestas o modo revisión
+    const answerButtons = contenidor.querySelectorAll("button[data-pregunta]");
+
+    if (!estatDeLaPartida.mostrantCorreccions) {
+        // Modo normal: permitir seleccionar y cambiar antes de enviar
+        answerButtons.forEach(btn => {
             btn.addEventListener("click", () => {
                 marcarRespuesta(btn.dataset.pregunta, btn.dataset.resposta);
 
                 // Quitar selección previa en esa pregunta
-                contenidor.querySelectorAll(`button[data-pregunta="${btn.dataset.pregunta}"]`)
+                contenidor
+                    .querySelectorAll(`button[data-pregunta="${btn.dataset.pregunta}"]`)
                     .forEach(b => b.classList.remove("btn-seleccionada"));
 
                 // Marcar este como seleccionado
@@ -144,11 +149,43 @@ function mostrarPregunta(idx) {
             });
 
             // Si ya estaba respondida, lo pintamos directamente al cargar
-            if (estatDeLaPartida.respostesUsuari[idx] !== undefined &&
-                Number(btn.dataset.resposta) === estatDeLaPartida.respostesUsuari[idx]) {
+            if (
+                estatDeLaPartida.respostesUsuari[idx] !== undefined &&
+                Number(btn.dataset.resposta) === estatDeLaPartida.respostesUsuari[idx]
+            ) {
                 btn.classList.add("btn-seleccionada");
             }
         });
+    } else {
+        // Modo revisión: bloquear cambios y colorear correcto/incorrecto
+        const correctaId = Number(preguntaObj.resposta_correcta); // 1-based
+        const correctaIdx0 = correctaId - 1; // 0-based
+        const respuestaUsuario = estatDeLaPartida.respostesUsuari[idx]; // 0-based o undefined
+
+        answerButtons.forEach(btn => {
+            const opcionIdx = Number(btn.dataset.resposta);
+
+            // Bloquear cambios
+            btn.disabled = true;
+
+            // Siempre marcar la correcta en verde
+            if (opcionIdx === correctaIdx0) {
+                btn.classList.add("btn-correcta");
+            }
+
+            // Si el usuario respondió y fue incorrecta, marcar su selección en rojo
+            if (
+                respuestaUsuario !== undefined &&
+                respuestaUsuario === opcionIdx &&
+                respuestaUsuario !== correctaIdx0
+            ) {
+                btn.classList.add("btn-incorrecta");
+            }
+
+            // Quitar marcador de selección gris si lo tuviera
+            btn.classList.remove("btn-seleccionada");
+        });
+    }
     // Navegación
     const btnAnterior = document.getElementById("btnAnterior");
     const btnSiguiente = document.getElementById("btnSiguiente");
@@ -207,6 +244,13 @@ function mostrarPregunta(idx) {
                 // refrescar per mostrar ✓/X per cada pregunta
                 actualitzarContador();
                 pararTemporizador();
+
+                // Ocultar y desactivar el botón enviar tras enviar
+                btnEnviar.disabled = true;
+                btnEnviar.style.display = "none";
+
+                // Re-render de la pregunta actual para aplicar colores y bloqueo
+                mostrarPregunta(estatDeLaPartida.preguntaActual);
             })
             .catch(err => console.error("Error enviant respostes:", err));
         });

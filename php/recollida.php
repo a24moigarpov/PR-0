@@ -7,6 +7,8 @@ $data = json_decode($raw, true);
 
 $preguntasCorrectas = 0;
 $respostesUsuari = $data['respostesUsuari'] ?? [];
+// Tiempo total que tardó el usuario (en segundos)
+$tiempo = isset($data['tiempo']) ? (int)$data['tiempo'] : 0;
 
 // Cargar preguntas originales
 $questionsFile = __DIR__ . '/../js/data.json';
@@ -26,5 +28,6 @@ foreach ($respostesUsuari as $i => $userIdx0) {
 echo json_encode([
     'totalPreguntas' => count($respostesUsuari),
     'respuestasUsuario' => $respostesUsuari,
-    'preguntasCorrectas' => $preguntasCorrectas
+    'preguntasCorrectas' => $preguntasCorrectas,
+    'tiempo' => $tiempo
 ]);
