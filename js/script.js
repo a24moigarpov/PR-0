@@ -7,13 +7,15 @@ let estatDeLaPartida = {
     contadorPreguntes: 0,
     respostesUsuari: [],
     preguntasCorrectas: 0,
-    temporizador: 0
+    temporizador: 0,
+    segundos: 0,
+    preguntaActual: 0, // índice de la pregunta mostrada
+    mostrantCorreccions: false // després d'enviar, mostrem ✓/X reals
 };
 
 // ---------------------------
 // Temporizador
 // ---------------------------
-
 function iniciarTemporizador() {
     estatDeLaPartida.segundos = 0; // tiempo en segundos
     estatDeLaPartida.temporizador = setInterval(() => {
@@ -37,7 +39,6 @@ function mostrarTemporizador() {
     temporizador.innerHTML = `Tiempo: ${minutos}:${segundosStr}`;
 }
 
-
 // ---------------------------
 // Funciones principales
 // ---------------------------
@@ -46,11 +47,27 @@ function actualitzarContador() {
     if (!marcador) return;
 
     let htmlString = `Preguntes respostes ${estatDeLaPartida.contadorPreguntes}/${NPREGUNTAS} <br>`;
-    for (let i = 0; i < estatDeLaPartida.respostesUsuari.length; i++) {
-        htmlString += `Pregunta ${i} : <span class='badge text-bg-primary'> 
-                        ${(estatDeLaPartida.respostesUsuari[i] == undefined ? "O" : "X")}
-                       </span><br>`;
+    for (let i = 0; i < NPREGUNTAS; i++) {
+        const respostaUsuari = estatDeLaPartida.respostesUsuari[i]; // index 0..n-1
+        let simbol = "O"; // no contestada
+
+        if (respostaUsuari !== undefined) {
+            if (estatDeLaPartida.mostrantCorreccions && dataPreguntas[i]) {
+                // data.json guarda "resposta_correcta" com id 1..n, nosaltres guardem index 0..n-1
+                const correctaId = Number(dataPreguntas[i].resposta_correcta);
+                const esCorrecta = (Number(respostaUsuari) + 1) === correctaId;
+                simbol = esCorrecta ? "✓" : "X";
+            } else {
+                // abans d'enviar només marquem com contestada
+                simbol = "Contestada"; // punt per indicat contestada sense valorar
+            }
+        }
+
+        htmlString += `Pregunta ${i+1} : <span class='badge text-bg-primary'> ${simbol}</span><br>`;
+      
     }
+    htmlString += `<br>`;
+    htmlString += `Preguntes correctes: ${estatDeLaPartida.preguntasCorrectas}/${NPREGUNTAS}`;
 
     marcador.innerHTML = htmlString;
 }
@@ -61,7 +78,6 @@ function marcarRespuesta(numPregunta, numResposta) {
 
     console.log(`Pregunta ${numPregunta} - Respuesta ${numResposta}`);
 
-    // Solo contar si aún no se había respondido
     if (estatDeLaPartida.respostesUsuari[numPregunta] === undefined) {
         estatDeLaPartida.contadorPreguntes++;
         if (estatDeLaPartida.contadorPreguntes === NPREGUNTAS) {
@@ -77,106 +93,133 @@ function marcarRespuesta(numPregunta, numResposta) {
 window.marcarRespuesta = marcarRespuesta;
 
 // ---------------------------
-// Generar preguntas y botones
+// Mostrar una pregunta
+// ---------------------------
+let dataPreguntas = [];
+
+function mostrarPregunta(idx) {
+    const contenidor = document.getElementById("questionari");
+    if (!contenidor || !dataPreguntas[idx]) return;
+
+    const preguntaObj = dataPreguntas[idx];
+
+    let htmlString = `<h3>${preguntaObj.pregunta}</h3>`;
+    htmlString += `<img class="img" src="${preguntaObj.imatge}" alt="Pregunta ${idx+1}">`;
+
+    for (let j = 0; j < preguntaObj.respostes.length; j++) {
+        htmlString += `<button class="btn btn-primary w-100 my-2" 
+                            data-pregunta="${idx}" 
+                            data-resposta="${j}">
+                            ${preguntaObj.respostes[j].etiqueta}
+                       </button>`;
+    }
+
+    // Botones navegación
+    htmlString += `
+        <div class="mt-3">
+            <br>
+            <button id="btnAnterior" class="btn btn-secondary">Anterior</button>
+            <button id="btnSiguiente" class="btn btn-secondary">Siguiente</button>
+        </div>
+    `;
+
+    // Botón enviar (solo al final)
+    if (idx === NPREGUNTAS - 1) {
+        htmlString += `<button id="btnEnviar" class="btn btn-danger" style="display:none">Enviar Respuestas</button>`;
+    }
+
+    contenidor.innerHTML = htmlString;
+
+    // Delegación eventos respuestas
+    contenidor.querySelectorAll("button[data-pregunta]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            marcarRespuesta(btn.dataset.pregunta, btn.dataset.resposta);
+        });
+    });
+
+    // Navegación
+    const btnAnterior = document.getElementById("btnAnterior");
+    const btnSiguiente = document.getElementById("btnSiguiente");
+
+    if (btnAnterior) {
+        btnAnterior.disabled = idx === 0;
+        btnAnterior.addEventListener("click", () => {
+            estatDeLaPartida.preguntaActual--;
+            mostrarPregunta(estatDeLaPartida.preguntaActual);
+        });
+    }
+
+    if (btnSiguiente) {
+        btnSiguiente.disabled = idx === NPREGUNTAS - 1;
+        btnSiguiente.addEventListener("click", () => {
+            estatDeLaPartida.preguntaActual++;
+            mostrarPregunta(estatDeLaPartida.preguntaActual);
+        });
+    }
+
+    // Enviar respuestas
+    const btnEnviar = document.getElementById("btnEnviar");
+    if (btnEnviar) {
+        btnEnviar.addEventListener("click", () => {
+            const url = "./php/recollida.php";
+
+            const payload = {
+                contadorPreguntes: estatDeLaPartida.contadorPreguntes,
+                respostesUsuari: estatDeLaPartida.respostesUsuari,
+                tiempo: estatDeLaPartida.segundos
+            };
+
+            fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log("JSON ->", data);
+                // Acceptar tant "preguntasCorrectas" com "preguntasCorrectas_servidor"
+                const correctes = (data && (data.preguntasCorrectas ?? data.preguntasCorrectas_servidor)) ?? 0;
+                estatDeLaPartida.preguntasCorrectas = correctes;
+                estatDeLaPartida.mostrantCorreccions = true;
+
+                const marcador = document.getElementById("marcador");
+                if (marcador) {
+                    const p = document.createElement("p");
+                    p.className = "resultat";
+                    p.textContent = `Respostes correctes: ${correctes}/${NPREGUNTAS}`;
+                    marcador.appendChild(p);
+                } else {
+                    alert(`Respostes correctes: ${correctes}/${NPREGUNTAS}`);
+                }
+
+                // refrescar per mostrar ✓/X per cada pregunta
+                actualitzarContador();
+                pararTemporizador();
+            })
+            .catch(err => console.error("Error enviant respostes:", err));
+        });
+    }
+
+    actualitzarContador();
+}
+
+// ---------------------------
+// Generar preguntas
 // ---------------------------
 async function imprimirJuego() {
     try {
-        //iniciar temporizador
         iniciarTemporizador();
         const response = await fetch("./js/data.json");
         if (!response.ok) throw new Error("No se pudo cargar data.json");
 
-        const data = await response.json(); // data es un array de preguntas
-        const contenidor = document.getElementById("questionari"); // asegúrate de que exista en HTML
-        if (!contenidor) throw new Error("No existe el contenedor #questionari");
-
-        let htmlString = "";
-
-        for (let i = 0; i < NPREGUNTAS; i++) {
-            const preguntaObj = data[i]; // accedemos directamente al objeto de la pregunta
-
-            htmlString += `<h3>${preguntaObj.pregunta}</h3>`;
-            
-            htmlString += `<img class="img" src="${preguntaObj.imatge}" alt="Pregunta ${i+1}">`;
-           
-            
-            for (let j = 0; j < preguntaObj.respostes.length; j++) {
-                htmlString += `<button class="btn btn-primary w-100 my-2" 
-                                    data-pregunta="${i}" 
-                                    data-resposta="${j}">
-                                    ${preguntaObj.respostes[j].etiqueta}
-                               </button>`;
-            }
-        }
-
-        // Botón de enviar respuestas (oculto hasta completar todas las preguntas)
-        htmlString += `<button id="btnEnviar" class="btn btn-danger" style="display:none">Enviar Respuestas</button>`;
-
-        contenidor.innerHTML = htmlString;
-
-        // Delegación de eventos para los botones
-        contenidor.addEventListener("click", (e) => {
-            const btn = e.target.closest("button");
-            if (!btn || !contenidor.contains(btn)) return;
-
-            const numPregunta = btn.dataset.pregunta;
-            const numResposta = btn.dataset.resposta;
-
-            if (numPregunta !== undefined && numResposta !== undefined) {
-                marcarRespuesta(numPregunta, numResposta);
-            }
-        });
-
-        // Evento para enviar respuestas al servidor
-        const btnEnviar = document.getElementById("btnEnviar");
-        if (btnEnviar) {
-            btnEnviar.addEventListener("click", () => {
-                const url = "./php/recollida.php"; // Cambia a tu endpoint real
-
-                // Enviar un payload limpio sin 'preguntasCorrectas' para evitar confusión en el servidor
-                const payload = {
-                    contadorPreguntes: estatDeLaPartida.contadorPreguntes,
-                    respostesUsuari: estatDeLaPartida.respostesUsuari
-                };
-
-                fetch(url, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                })
-                .then(res => res.json())
-                .then(data => {
-                    console.log("JSON ->", data);
-                    const correctes = data?.preguntasCorrectas_servidor ?? 0;
-                    // Actualizar estado local con el resultado del servidor
-                    estatDeLaPartida.preguntasCorrectas = correctes;
-                    // Mostrar resultado de forma visible
-                    const marcador = document.getElementById("marcador");
-                    if (marcador) {
-                        const p = document.createElement("p");
-                        p.className = "resultat";
-                        p.textContent = `Respostes correctes: ${correctes}/${NPREGUNTAS}`;
-                        marcador.appendChild(p);
-                    } else {
-
-                        alert(`Respostes correctes: ${correctes}/${NPREGUNTAS}`);
-
-                    }
-                    pararTemporizador();
-
-                })
-                .catch(err => console.error('Error enviant respostes:', err));
-            });
-        }
-
-        actualitzarContador();
+        dataPreguntas = await response.json();
+        mostrarPregunta(estatDeLaPartida.preguntaActual);
 
     } catch (error) {
         console.error("Error cargando preguntas:", error);
     }
 }
 
-//
 // ---------------------------
 // Inicialización
 // ---------------------------

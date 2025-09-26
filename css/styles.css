@@ -48,3 +48,21 @@ button {
 button:hover {
     background-color: #357abd;
 }
+
+
+
+#marcador {
+    position: fixed;       /* siempre visible en la ventana */
+    top: 20px;             /* distancia desde la parte superior */
+    right: 20px;           /* distancia desde la derecha */
+    width: 200px;          /* tamaño fijo */
+    padding: 10px;
+    background-color: #fff;
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 9999;         /* por encima de otros elementos */
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    text-align: center;
+}
