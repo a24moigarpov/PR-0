@@ -49,6 +49,10 @@ button:hover {
     background-color: #357abd;
 }
 
+.btn-seleccionada {
+    background-color: gray !important;
+    color: white !important;
+}
 
 
 #marcador {

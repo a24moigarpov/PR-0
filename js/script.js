@@ -130,13 +130,25 @@ function mostrarPregunta(idx) {
 
     contenidor.innerHTML = htmlString;
 
-    // Delegación eventos respuestas
-    contenidor.querySelectorAll("button[data-pregunta]").forEach(btn => {
-        btn.addEventListener("click", () => {
-            marcarRespuesta(btn.dataset.pregunta, btn.dataset.resposta);
-        });
-    });
+   // Delegación eventos respuestas
+        contenidor.querySelectorAll("button[data-pregunta]").forEach(btn => {
+            btn.addEventListener("click", () => {
+                marcarRespuesta(btn.dataset.pregunta, btn.dataset.resposta);
 
+                // Quitar selección previa en esa pregunta
+                contenidor.querySelectorAll(`button[data-pregunta="${btn.dataset.pregunta}"]`)
+                    .forEach(b => b.classList.remove("btn-seleccionada"));
+
+                // Marcar este como seleccionado
+                btn.classList.add("btn-seleccionada");
+            });
+
+            // Si ya estaba respondida, lo pintamos directamente al cargar
+            if (estatDeLaPartida.respostesUsuari[idx] !== undefined &&
+                Number(btn.dataset.resposta) === estatDeLaPartida.respostesUsuari[idx]) {
+                btn.classList.add("btn-seleccionada");
+            }
+        });
     // Navegación
     const btnAnterior = document.getElementById("btnAnterior");
     const btnSiguiente = document.getElementById("btnSiguiente");
@@ -198,6 +210,7 @@ function mostrarPregunta(idx) {
             })
             .catch(err => console.error("Error enviant respostes:", err));
         });
+        
     }
 
     actualitzarContador();
