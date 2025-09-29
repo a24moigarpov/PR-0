@@ -3,6 +3,11 @@
 // ---------------------------
 const NPREGUNTAS = 10; // Cambia según el número de preguntas que quieras usar
 
+//bloquea el scroll
+// window.onscroll = function() {
+//     window.scrollTo(10, 0);
+// };
+
 let estatDeLaPartida = {
     contadorPreguntes: 0,
     respostesUsuari: [],

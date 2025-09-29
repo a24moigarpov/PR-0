@@ -9,6 +9,18 @@
 </head>
 <body>
     <h1>Test de Teòrica</h1>
+    <div id="userSection">
+        <form id="userForm">
+            <label for="userName">Introdueix el teu nom:</label>
+            <input type="text" id="userName" name="userName" required>
+            <button type="submit">Guardar</button>
+        </form>
+        <div id="greetArea" style="display:none">
+            <p id="greeting"></p>
+            <button id="clearNameBtn" type="button">Esborrar nom</button>
+        </div>
+    </div>
+    <hr>
 
     <div id="preguntes"></div>
     <div id="temporizador"></div>
@@ -16,6 +28,7 @@
     <div id="marcador"></div>
     <div id="questionari"></div>
 
+    <script src="./js/admin.js"></script>
     <script type="module" src="./js/script.js"></script>
 </body>
 </html>

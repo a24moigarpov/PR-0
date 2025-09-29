@@ -102,6 +102,5 @@ button:disabled:hover {
     font-size: 12px;
     padding: 8px 10px;
     max-height: 190vh; /* limitar alto para que no tape todo */
-    overflow: auto;   /* permitir scroll interno si es necesario */
   }
 }
