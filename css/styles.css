@@ -4,44 +4,46 @@ body {
     line-height: 1.6;
     max-width: 800px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 10px;
     background-color: #f5f5f5;
 }
 
 h1 {
     text-align: center;
     color: #333;
+    margin: 10px 0;
 }
 
 /* Estils per a cada pregunta */
 h3 {
-    margin-top: 20px;
+    margin-top: 5px;
+    margin-bottom: 8px;
     color: #2c3e50;
+    font-size: 16px;
 }
 
 img {
-    width: 150%;           /* que ocupe todo el ancho del contenedor */
-    max-width: 700px;      /* tamaño máximo para móviles */
-    height: 260px;          /* alto fijo */
-    object-fit: cover;      /* recorta para encajar sin deformar */
-    border-radius: 8px;     /* esquinas redondeadas */
-    margin: 10px auto;      /* margen arriba/abajo y centrado horizontal */
-    display: block;         /* necesario para centrar con margin auto */
-    text-align: center;
+    width: 100%;
+    max-width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin: 5px 0 10px 0;
+    display: block;
 }
 
 /* Estils per als botons de resposta */
 button {
     display: block;
     width: 100%;
-    margin: 5px 0;
-    padding: 10px;
+    margin: 3px 0;
+    padding: 8px;
     background-color: #4a90e2;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 14px;
     transition: background-color 0.3s;
 }
 
@@ -56,12 +58,12 @@ button:hover {
 
 /* Modo revisión: correcta en verde, incorrecta seleccionada en rojo */
 .btn-correcta {
-    background-color: #28a745 !important; /* verde */
+    background-color: #28a745 !important;
     color: #fff !important;
 }
 
 .btn-incorrecta {
-    background-color: #dc3545 !important; /* rojo */
+    background-color: #dc3545 !important;
     color: #fff !important;
 }
 
@@ -72,35 +74,145 @@ button:disabled {
 }
 
 button:disabled:hover {
-    background-color: inherit; /* no cambiar color al pasar el ratón */
+    background-color: inherit;
 }
 
+/* Contenedor de la imagen - ocupa todo el ancho */
+.image-container {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+/* Layout: respuestas a la izquierda, marcador a la derecha (ambos DEBAJO de la foto) */
+.question-layout {
+  display: grid;
+  grid-template-columns: 1fr 180px;
+  gap: 10px;
+  align-items: start;
+}
+
+.answers-col {
+  min-width: 0;
+}
+
+.sidebar-col {
+  min-width: 0;
+}
 
 #marcador {
-    position: fixed;
-    bottom: 20px;    /* separación desde abajo */
-    right: 10px;     /* separación desde la derecha */
-    background: white;   /* fondo para que se lea bien */
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 10px 15px;
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
-    font-size: 14px;
-    max-width: 220px;
-    z-index: 9999;   /* que quede encima de todo */
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+  font-size: 11px;
+  line-height: 1.3;
+  height: fit-content;
+}
+
+/* Botones de navegación debajo de todo */
+.nav-pager {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.nav-pager button {
+  width: 100%;
+  margin: 0;
+  padding: 10px;
+  font-size: 15px;
+}
+
+/* Botón enviar: amarillo y destacado */
+#btnEnviar {
+  margin-top: 10px;
+  width: 100%;
+  background-color: #f7c948 !important; /* amarillo */
+  color: #333 !important;               /* texto oscuro para contraste */
+  border: 1px solid #e0b400;            /* borde sutil */
+}
+
+#btnEnviar:hover {
+  background-color: #f0b429 !important; /* amarillo un poco más oscuro al hover */
+}
+
+/* Ajustes del contenedor principal */
+#questionari {
+  padding-bottom: 10px;
+}
+
+/* Responsive para móviles pequeños */
+@media (max-width: 400px) {
+  body {
+    padding: 8px;
   }
 
-@media (max-width: 600px) {
-  #questionari {
-    padding-bottom: 200px; /* espacio para que no quede tapado por el marcador */
+  h3 {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  img {
+    height: 120px;
+  }
+
+  .question-layout {
+    grid-template-columns: 1fr 150px;
+    gap: 8px;
   }
 
   #marcador {
-    right: 12px;
-    bottom: 12px;
-    max-width: 65vw; /* más estrecho en móvil */
+    font-size: 10px;
+    padding: 6px;
+  }
+
+  button {
+    padding: 7px;
+    font-size: 13px;
+    margin: 2px 0;
+  }
+
+  .nav-pager button {
+    padding: 8px;
+    font-size: 14px;
+  }
+}
+
+/* Para tablets y pantallas más grandes */
+@media (min-width: 600px) {
+  body {
+    padding: 20px;
+  }
+
+  h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  img {
+    height: 200px;
+  }
+
+  .question-layout {
+    grid-template-columns: 1fr 220px;
+  }
+
+  button {
+    padding: 10px;
+    font-size: 16px;
+    margin: 5px 0;
+  }
+
+  #marcador {
     font-size: 12px;
-    padding: 8px 10px;
-    max-height: 190vh; /* limitar alto para que no tape todo */
+    padding: 10px;
+  }
+
+  .nav-pager button {
+    padding: 12px;
+    font-size: 16px;
   }
 }

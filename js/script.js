@@ -104,7 +104,13 @@ function mostrarPregunta(idx) {
     const preguntaObj = dataPreguntas[idx];
 
     let htmlString = `<h3>${preguntaObj.pregunta}</h3>`;
-    if (preguntaObj.imatge) htmlString += `<img class="img" src="${preguntaObj.imatge}" alt="Pregunta ${idx+1}">`;
+    if (preguntaObj.imatge) {
+        htmlString += `<div class="image-container"><img class="img" src="${preguntaObj.imatge}" alt="Pregunta ${idx+1}"></div>`;
+    }
+
+    // Layout: respuestas a la izquierda y marcador a la derecha, ambos debajo de la imagen
+    htmlString += `<div class="question-layout">`;
+    htmlString += `<div class="answers-col">`;
 
     for (let j = 0; j < preguntaObj.respostes.length; j++) {
         htmlString += `<button class="btn btn-primary w-100 my-2" 
@@ -114,19 +120,32 @@ function mostrarPregunta(idx) {
                        </button>`;
     }
 
+    htmlString += `</div>`; // fin answers-col
+    htmlString += `<div class="sidebar-col"><div id="marcador-slot"></div></div>`;
+    htmlString += `</div>`; // fin question-layout
+
+    // Botón Enviar arriba de los botones de navegación (oculto hasta contestar todo)
+    htmlString += `<button id="btnEnviar" class="btn" style="display:none">Enviar Respuestas</button>`;
+
+    // Navegación compacta debajo de todo
     htmlString += `
-        <div class="mt-3">
-            <br>
+        <div class="nav-pager">
             <button id="btnAnterior" class="btn btn-secondary">Anterior</button>
             <button id="btnSiguiente" class="btn btn-secondary">Siguiente</button>
         </div>
     `;
 
-    if (idx === NPREGUNTAS - 1) {
-        htmlString += `<button id="btnEnviar" class="btn btn-danger" style="display:none">Enviar Respuestas</button>`;
-    }
+    // Capturamos referencia al marcador ANTES de reemplazar el contenido
+    const marcador = document.getElementById("marcador");
 
+    // Render del contenido de la pregunta
     contenidor.innerHTML = htmlString;
+
+    // Recolocar el marcador en la nueva ranura lateral de esta vista
+    const marcadorSlot = contenidor.querySelector("#marcador-slot");
+    if (marcador && marcadorSlot && marcador.parentElement !== marcadorSlot) {
+        marcadorSlot.appendChild(marcador);
+    }
 
     const answerButtons = contenidor.querySelectorAll("button[data-pregunta]");
 
@@ -184,6 +203,10 @@ function mostrarPregunta(idx) {
 
     const btnEnviar = document.getElementById("btnEnviar");
     if (btnEnviar) {
+        // Si ya se han contestado todas, mostrar el botón tras re-render
+        if (estatDeLaPartida.contadorPreguntes === NPREGUNTAS) {
+            btnEnviar.style.display = "block";
+        }
         btnEnviar.addEventListener("click", () => {
             // Transformar respuestas para enviar al backend
             const respuestasAPI = dataPreguntas.map((p, idx) => ({
