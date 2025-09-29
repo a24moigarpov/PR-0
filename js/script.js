@@ -97,6 +97,22 @@ window.marcarRespuesta = marcarRespuesta;
 // ---------------------------
 let dataPreguntas = [];
 
+// Preload helper to warm up browser cache for image URLs
+function preloadImages(urls) {
+    try {
+        const unique = Array.from(new Set(urls.filter(Boolean)));
+        unique.forEach(src => {
+            const img = new Image();
+            img.decoding = "async";
+            img.loading = "eager";
+            img.src = src;
+            // We don't need to await; cache will be warmed once loaded
+        });
+    } catch (e) {
+        console.warn("preloadImages() error:", e);
+    }
+}
+
 function mostrarPregunta(idx) {
     const contenidor = document.getElementById("questionari");
     if (!contenidor || !dataPreguntas[idx]) return;
@@ -105,7 +121,7 @@ function mostrarPregunta(idx) {
 
     let htmlString = `<h3>${preguntaObj.pregunta}</h3>`;
     if (preguntaObj.imatge) {
-        htmlString += `<div class="image-container"><img class="img" src="${preguntaObj.imatge}" alt="Pregunta ${idx+1}"></div>`;
+        htmlString += `<div class="image-container"><img class="img" src="${preguntaObj.imatge}" alt="Pregunta ${idx+1}" loading="eager" decoding="async" fetchpriority="high"></div>`;
     }
 
     // Layout: respuestas a la izquierda y marcador a la derecha, ambos debajo de la imagen
@@ -278,6 +294,10 @@ async function imprimirJuego() {
             resposta_correcta: null,
             imatge: q.imatge || null
         }));
+
+        // Start preloading all images in background so navigation is instant
+        const imageUrls = dataPreguntas.map(p => p.imatge).filter(Boolean);
+        if (imageUrls.length) preloadImages(imageUrls);
 
         mostrarPregunta(estatDeLaPartida.preguntaActual);
 
