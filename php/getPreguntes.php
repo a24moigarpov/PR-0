@@ -12,9 +12,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // Configuración de la base de datos
 $dbHost = 'localhost';
-$dbName = 'PR0';
-$dbUser = 'root';
-$dbPass = '';
+$dbName = 'a24moigarpov_pr0';
+$dbUser = 'a24moigarpov_a24moigarpov';
+$dbPass = 'UJCFWTG-k1';
 
 // Conectar PDO
 try {

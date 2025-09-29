@@ -41,9 +41,9 @@ if ($totalPreguntes === 0) {
 
 // Conexión a MySQL
 $dbHost = 'localhost';
-$dbName = 'PR0';
-$dbUser = 'root';
-$dbPass = '';
+$dbName = 'a24moigarpov_pr0';
+$dbUser = 'a24moigarpov_a24moigarpov';
+$dbPass = 'UJCFWTG-k1';
 
 try {
     $dsn = "mysql:host={$dbHost};dbname={$dbName};charset=utf8mb4";
