@@ -1,6 +1,7 @@
 // Gestió de nom d'usuari amb localStorage
 // Clau de localStorage
 const NAME_KEY = 'usuariNom';
+const ADMIN_USERNAME = 'admin';
 
 function renderUserUI() {
   const form = document.getElementById('userForm');
@@ -60,6 +61,16 @@ function setupUserHandlers() {
       e.preventDefault();
       const name = (nameInput?.value || '').trim();
       if (name.length > 0) {
+        // Verificar si el nombre es 'admin' (sin importar mayúsculas/minúsculas)
+        if (name.toLowerCase() === ADMIN_USERNAME) {
+          // Guardar la bandera de administrador
+          localStorage.setItem('isAdmin', 'true');
+          // Redirigir al panel de administración
+          window.location.href = 'admin.html';
+          return;
+        }
+        
+        // Si no es admin, proceder normalmente
         localStorage.setItem(NAME_KEY, name);
         renderUserUI();
       } else {
@@ -81,7 +92,23 @@ function setupUserHandlers() {
   }
 }
 
+// Verificar si es admin al cargar la página
+function checkAdminStatus() {
+  const isAdmin = localStorage.getItem('isAdmin') === 'true';
+  const currentPage = window.location.pathname.split('/').pop();
+  
+  // Si está en admin.html pero no está autenticado, redirigir a index.html
+  if (currentPage === 'admin.html' && !isAdmin) {
+    window.location.href = 'index.html';
+  }
+  // Si está en index.html pero está autenticado como admin, redirigir a admin.html
+  else if (currentPage === 'index.html' && isAdmin) {
+    window.location.href = 'admin.html';
+  }
+}
+
 window.addEventListener('DOMContentLoaded', () => {
+  checkAdminStatus();
   setupUserHandlers();
   renderUserUI();
 });

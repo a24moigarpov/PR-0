@@ -58,6 +58,26 @@ try {
                     'success' => true,
                     'questions' => $rows
                 ]);
+            } elseif (isset($input['id']) && $input['id'] !== '') {
+                // Obtener una pregunta específica por ID
+                $id = (int)$input['id'];
+                $sql = 'SELECT id, pregunta, resposta_1, resposta_2, resposta_3, resposta_4, resposta_correcta, imatge FROM `preguntes` WHERE id = :id';
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([':id' => $id]);
+                $row = $stmt->fetch();
+                
+                if ($row) {
+                    echo json_encode([
+                        'success' => true,
+                        'question' => $row
+                    ]);
+                } else {
+                    http_response_code(404);
+                    echo json_encode([
+                        'success' => false,
+                        'error' => 'Pregunta no encontrada'
+                    ]);
+                }
             } else {
                 // Obtener preguntas para el quiz
                 $numPreguntes = isset($input['num']) ? intval($input['num']) : 10;
@@ -102,7 +122,8 @@ try {
                 $answer2 = val($input, 'answer2');
                 $answer3 = val($input, 'answer3');
                 $answer4 = val($input, 'answer4');
-                $correctIndex = (int)val($input, 'correctIndex', '0');
+                $correctIndex = isset($input['correctIndex']) ? (int)$input['correctIndex'] : 0;
+                $imageUrl = isset($input['imageUrl']) ? trim($input['imageUrl']) : '';
 
                 if ($question === '' || $answer1 === '' || $answer2 === '' || $answer3 === '' || $answer4 === '') {
                     throw new RuntimeException('Todos los campos de pregunta y respuestas son obligatorios.');
@@ -111,7 +132,7 @@ try {
                     throw new RuntimeException('El índice correcto debe estar entre 0 y 3.');
                 }
 
-                $sql = 'INSERT INTO `preguntes` (pregunta, resposta_1, resposta_2, resposta_3, resposta_4, resposta_correcta) VALUES (:q, :a1, :a2, :a3, :a4, :ci)';
+                $sql = 'INSERT INTO `preguntes` (pregunta, resposta_1, resposta_2, resposta_3, resposta_4, resposta_correcta, imatge) VALUES (:q, :a1, :a2, :a3, :a4, :ci, :img)';
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([
                     ':q' => $question,
@@ -120,23 +141,25 @@ try {
                     ':a3' => $answer3,
                     ':a4' => $answer4,
                     ':ci' => $correctIndex,
+                    ':img' => $imageUrl
                 ]);
 
                 echo json_encode([
                     'success' => true,
                     'message' => 'Pregunta creada correctamente.',
-                    'id' => $pdo->lastInsertId()
+                    'id' => (int)$pdo->lastInsertId()
                 ]);
 
             } elseif ($action === 'update') {
                 // Actualizar pregunta existente
-                $id = (int)val($input, 'id', '0');
+                $id = isset($input['id']) ? (int)$input['id'] : 0;
                 $question = val($input, 'question');
                 $answer1 = val($input, 'answer1');
                 $answer2 = val($input, 'answer2');
                 $answer3 = val($input, 'answer3');
                 $answer4 = val($input, 'answer4');
-                $correctIndex = (int)val($input, 'correctIndex', '0');
+                $correctIndex = isset($input['correctIndex']) ? (int)$input['correctIndex'] : 0;
+                $imageUrl = val($input, 'imageUrl', '');
 
                 if ($id <= 0) {
                     throw new RuntimeException('ID inválido.');
@@ -148,7 +171,7 @@ try {
                     throw new RuntimeException('El índice correcto debe estar entre 0 y 3.');
                 }
 
-                $sql = 'UPDATE `preguntes` SET pregunta=:q, resposta_1=:a1, resposta_2=:a2, resposta_3=:a3, resposta_4=:a4, resposta_correcta=:ci WHERE id=:id';
+                $sql = 'UPDATE `preguntes` SET pregunta=:q, resposta_1=:a1, resposta_2=:a2, resposta_3=:a3, resposta_4=:a4, resposta_correcta=:ci, imatge=:img WHERE id=:id';
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([
                     ':q' => $question,
@@ -157,6 +180,7 @@ try {
                     ':a3' => $answer3,
                     ':a4' => $answer4,
                     ':ci' => $correctIndex,
+                    ':img' => $imageUrl,
                     ':id' => $id,
                 ]);
 

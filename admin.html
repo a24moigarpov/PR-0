@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panell d'Administració - Test de Teòrica</title>
+    <link rel="stylesheet" href="./css/styles.css">
+    <style>
+        .admin-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .question-list {
+            margin-top: 20px;
+        }
+        .question-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .question-item h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .question-item ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .question-item li {
+            margin: 5px 0;
+            padding: 5px;
+        }
+        .correct-answer {
+            background-color: #d4edda;
+            font-weight: bold;
+        }
+        .question-actions {
+            margin-top: 10px;
+        }
+        .question-form {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f0f8ff;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input[type="text"],
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        .btn-delete {
+            background-color: #f44336;
+        }
+        .btn-edit {
+            background-color: #2196F3;
+        }
+        .btn-cancel {
+            background-color: #ff9800;
+        }
+        .btn-logout {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #607d8b;
+        }
+        .questions-grid {
+            display: grid;
+            gap: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <h1>Panell d'Administració</h1>
+        <button id="logoutBtn" class="btn btn-logout">Tancar Sessió</button>
+        
+        <div id="questionForm" class="question-form">
+            <h2 id="formTitle">Afegir Nova Pregunta</h2>
+            <input type="hidden" id="editId" value="">
+            <div class="form-group">
+                <label for="questionText">Pregunta:</label>
+                <input type="text" id="questionText" required>
+            </div>
+            <div class="form-group">
+                <label for="answer1">Resposta 1:</label>
+                <input type="text" id="answer1" required>
+            </div>
+            <div class="form-group">
+                <label for="answer2">Resposta 2:</label>
+                <input type="text" id="answer2" required>
+            </div>
+            <div class="form-group">
+                <label for="answer3">Resposta 3:</label>
+                <input type="text" id="answer3" required>
+            </div>
+            <div class="form-group">
+                <label for="answer4">Resposta 4:</label>
+                <input type="text" id="answer4" required>
+            </div>
+            <div class="form-group">
+                <label for="correctAnswer">Resposta Correcta:</label>
+                <select id="correctAnswer" required>
+                    <option value="0">Resposta 1</option>
+                    <option value="1">Resposta 2</option>
+                    <option value="2">Resposta 3</option>
+                    <option value="3">Resposta 4</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="imageUrl">URL de la Imagen (opcional):</label>
+                <input type="url" id="imageUrl" placeholder="https://ejemplo.com/imagen.jpg">
+            </div>
+            <button id="saveQuestion" class="btn">Desar Pregunta</button>
+            <button id="cancelEdit" class="btn btn-cancel" style="display: none;">Cancel·lar</button>
+        </div>
+
+        <div class="question-list">
+            <h2>Llistat de Preguntes</h2>
+            <div id="questionsList">
+                <p>Carregant preguntes...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/admin-panel.js"></script>
+</body>
+</html>
