@@ -47,6 +47,18 @@ button {
     transition: background-color 0.3s;
 }
 
+.btn-logout {
+  font-size: 0.8rem;      /* Pequeño */
+  padding: 5px 12px;      /* Pequeño */
+  position: absolute;     /* Posición absoluta */
+  top: 10px;              /* Ajusta según tu diseño */
+  right: 14px;            /* Pegado a la derecha */
+}
+
+#header, .contenedor-principal {
+  position: relative;
+}
+
 /* Estilos para botones deshabilitados */
 button:disabled, 
 button[disabled] {

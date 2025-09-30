@@ -98,8 +98,11 @@
 <body>
     <div class="admin-container">
         <h1>Panell d'Administració</h1>
-        <button id="logoutBtn" class="btn btn-logout">Tancar Sessió</button>
-        
+        <div id="header" style="right: -27px;">
+            <button id="logoutBtn" class="btn btn-logout">Tancar Sessió</button>
+          </div>
+          <br> <br>
+          <br>  <br>
         <div id="questionForm" class="question-form">
             <h2 id="formTitle">Afegir Nova Pregunta</h2>
             <input type="hidden" id="editId" value="">
@@ -146,6 +149,7 @@
                 <p>Carregant preguntes...</p>
             </div>
         </div>
+       
     </div>
 
     <script src="./js/admin-panel.js"></script>

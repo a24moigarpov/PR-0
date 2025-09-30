@@ -251,6 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
         alert(message);
     }
 
+    
     // Mostrar mensaje de error
     function showError(message) {
         alert('Error: ' + message);
