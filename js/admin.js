@@ -7,20 +7,46 @@ function renderUserUI() {
   const nameInput = document.getElementById('userName');
   const greetArea = document.getElementById('greetArea');
   const greeting = document.getElementById('greeting');
+  const quizSection = document.getElementById('quizSection');
+  const buttons = document.querySelectorAll('button:not(#clearNameBtn):not([type="submit"])');
 
   if (!form || !greetArea || !greeting) return;
 
   const savedName = localStorage.getItem(NAME_KEY);
   if (savedName && savedName.trim() !== '') {
-    // Mostra salutació
+    // Mostrar saludo y habilitar botones
     if (greeting) greeting.textContent = `Hola, ${savedName}!`;
     greetArea.style.display = '';
     form.style.display = 'none';
+    
+    // Habilitar todos los botones del quiz
+    buttons.forEach(button => {
+      button.disabled = false;
+    });
+    
+    // Habilitar la sección del quiz si existe
+    if (quizSection) {
+      quizSection.classList.remove('disabled-section');
+    }
   } else {
-    // Mostra formulari
+    // Mostrar formulario y deshabilitar botones
     greetArea.style.display = 'none';
     form.style.display = '';
-    if (nameInput) nameInput.value = '';
+    
+    // Deshabilitar todos los botones del quiz
+    buttons.forEach(button => {
+      button.disabled = true;
+    });
+    
+    // Deshabilitar la sección del quiz si existe
+    if (quizSection) {
+      quizSection.classList.add('disabled-section');
+    }
+    
+    if (nameInput) {
+      nameInput.value = '';
+      nameInput.focus();
+    }
   }
 }
 
