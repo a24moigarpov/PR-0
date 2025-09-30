@@ -3,6 +3,9 @@
 // ---------------------------
 const NPREGUNTAS = 10; // Cambia según el número de preguntas que quieras usar
 
+// Clave de almacenamiento local
+const STORAGE_KEY = "quizStateV1";
+
 //bloquea el scroll
 // window.onscroll = function() {
 //     window.scrollTo(10, 0);
@@ -19,13 +22,93 @@ let estatDeLaPartida = {
 };
 
 // ---------------------------
+// Persistencia (localStorage)
+// ---------------------------
+function saveState() {
+    try {
+        const state = {
+            estatDeLaPartida: {
+                contadorPreguntes: estatDeLaPartida.contadorPreguntes,
+                respostesUsuari: estatDeLaPartida.respostesUsuari,
+                preguntasCorrectas: estatDeLaPartida.preguntasCorrectas,
+                segundos: estatDeLaPartida.segundos,
+                preguntaActual: estatDeLaPartida.preguntaActual,
+                mostrantCorreccions: estatDeLaPartida.mostrantCorreccions
+            },
+            dataPreguntas
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+        console.warn("No se pudo guardar el estado:", e);
+    }
+}
+
+function loadState() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object") return null;
+        if (!Array.isArray(parsed.dataPreguntas)) return null;
+        return parsed;
+    } catch (e) {
+        console.warn("No se pudo cargar el estado:", e);
+        return null;
+    }
+}
+
+function clearState() {
+    try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+}
+
+// Permite reiniciar la partida desde fuera (p.ej., al borrar el nombre)
+function resetQuiz() {
+    clearState();
+    pararTemporizador();
+    estatDeLaPartida.contadorPreguntes = 0;
+    estatDeLaPartida.respostesUsuari = [];
+    estatDeLaPartida.preguntasCorrectas = 0;
+    estatDeLaPartida.segundos = 0;
+    estatDeLaPartida.preguntaActual = 0;
+    estatDeLaPartida.mostrantCorreccions = false;
+    dataPreguntas = [];
+
+    // Limpiar UI básica
+    const contenidor = document.getElementById("questionari");
+    if (contenidor) contenidor.innerHTML = "";
+
+    // Si el marcador no existe, lo creamos
+    if (!document.getElementById("marcador")) {
+        const nuevoMarcador = document.createElement("div");
+        nuevoMarcador.id = "marcador";
+        document.body.appendChild(nuevoMarcador); // O donde lo necesites
+    } else {
+        document.getElementById("marcador").innerHTML = "";
+    }
+
+    const temp = document.getElementById("temporizador");
+    if (temp) temp.textContent = "";
+
+    // Iniciar un nuevo juego
+    imprimirJuego();
+    
+    // Forzar la actualización del contador
+    actualitzarContador();
+}
+// Exponer resetQuiz globalmente
+window.resetQuiz = resetQuiz;
+
+// ---------------------------
 // Temporizador
 // ---------------------------
 function iniciarTemporizador() {
-    estatDeLaPartida.segundos = 0;
+    // No reiniciamos segundos aquí: así podemos reanudar desde el valor guardado
+    pararTemporizador();
     estatDeLaPartida.temporizador = setInterval(() => {
         estatDeLaPartida.segundos++;
         mostrarTemporizador();
+        // Persistimos cada 5s para evitar muchas escrituras
+        if (estatDeLaPartida.segundos % 5 === 0) saveState();
     }, 1000);
 }
 
@@ -88,6 +171,7 @@ function marcarRespuesta(numPregunta, numResposta) {
 
     estatDeLaPartida.respostesUsuari[numPregunta] = numResposta;
     actualitzarContador();
+    saveState();
 }
 
 window.marcarRespuesta = marcarRespuesta;
@@ -206,6 +290,7 @@ function mostrarPregunta(idx) {
         btnAnterior.addEventListener("click", () => {
             estatDeLaPartida.preguntaActual--;
             mostrarPregunta(estatDeLaPartida.preguntaActual);
+            saveState();
         });
     }
 
@@ -214,6 +299,7 @@ function mostrarPregunta(idx) {
         btnSiguiente.addEventListener("click", () => {
             estatDeLaPartida.preguntaActual++;
             mostrarPregunta(estatDeLaPartida.preguntaActual);
+            saveState();
         });
     }
 
@@ -267,6 +353,8 @@ function mostrarPregunta(idx) {
 
                 btnEnviar.disabled = true;
                 btnEnviar.style.display = "none";
+                // Guardamos el estado final (por si el usuario recarga para ver correcciones)
+                saveState();
             })
             .catch(err => console.error("[RECOLLIDA] Error enviando respuestas:", err));
         });
@@ -280,6 +368,8 @@ function mostrarPregunta(idx) {
 // ---------------------------
 async function imprimirJuego() {
     try {
+        // Empezamos desde 0 en un juego nuevo
+        estatDeLaPartida.segundos = 0;
         iniciarTemporizador();
         const response = await fetch(`./php/getPreguntes.php?num=${NPREGUNTAS}`);
         if (!response.ok) throw new Error("No se pudieron cargar las preguntas");
@@ -300,6 +390,7 @@ async function imprimirJuego() {
         if (imageUrls.length) preloadImages(imageUrls);
 
         mostrarPregunta(estatDeLaPartida.preguntaActual);
+        saveState();
 
     } catch (error) {
         console.error("Error cargando preguntas:", error);
@@ -310,5 +401,22 @@ async function imprimirJuego() {
 // Inicialización
 // ---------------------------
 window.addEventListener("DOMContentLoaded", () => {
-    imprimirJuego();
+    const restored = loadState();
+    if (restored) {
+        // Restauramos datos y estado
+        dataPreguntas = restored.dataPreguntas;
+        estatDeLaPartida.contadorPreguntes = restored.estatDeLaPartida.contadorPreguntes || 0;
+        estatDeLaPartida.respostesUsuari = restored.estatDeLaPartida.respostesUsuari || [];
+        estatDeLaPartida.preguntasCorrectas = restored.estatDeLaPartida.preguntasCorrectas || 0;
+        estatDeLaPartida.segundos = restored.estatDeLaPartida.segundos || 0;
+        estatDeLaPartida.preguntaActual = restored.estatDeLaPartida.preguntaActual || 0;
+        estatDeLaPartida.mostrantCorreccions = !!restored.estatDeLaPartida.mostrantCorreccions;
+
+        iniciarTemporizador();
+        mostrarPregunta(estatDeLaPartida.preguntaActual);
+        mostrarTemporizador();
+        actualitzarContador();
+    } else {
+        imprimirJuego();
+    }
 });

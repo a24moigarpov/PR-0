@@ -47,6 +47,10 @@ function setupUserHandlers() {
     clearBtn.addEventListener('click', () => {
       localStorage.removeItem(NAME_KEY);
       renderUserUI();
+      // Reinicia la partida cuando se borra el nombre
+      if (typeof window.resetQuiz === 'function') {
+        window.resetQuiz();
+      }
     });
   }
 }
