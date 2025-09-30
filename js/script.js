@@ -124,8 +124,10 @@ function mostrarTemporizador() {
     let segundos = estatDeLaPartida.segundos % 60;
     let segundosStr = segundos < 10 ? `0${segundos}` : segundos;
 
-    temporizador.innerHTML = `Tiempo: ${minutos}:${segundosStr}`;
+    temporizador.innerHTML = `Tiempo: ${minutos}:${segundosStr} <span class="reloj">⏳</span>`;
 }
+
+
 
 // ---------------------------
 // Funciones principales
