@@ -134,27 +134,68 @@ function actualitzarContador() {
     const marcador = document.getElementById("marcador");
     if (!marcador) return;
 
-    let htmlString = `Preguntes respostes ${estatDeLaPartida.contadorPreguntes}/${NPREGUNTAS} <br>`;
+    let htmlString = `
+        <div class="mb-3">
+            <strong>Progreso:</strong> ${estatDeLaPartida.contadorPreguntes}/${NPREGUNTAS} preguntas respondidas
+        </div>
+        <div class="mb-3">
+            <strong>Preguntas:</strong><br>
+            <div class="d-flex flex-wrap gap-2 mt-2">
+    `;
+    
     for (let i = 0; i < NPREGUNTAS; i++) {
         const respostaUsuari = estatDeLaPartida.respostesUsuari[i];
-        let simbol = "O"; // no contestada
+        let badgeClass = 'badge text-bg-secondary no-contestada';
+        let simbol = '?'; // Símbolo por defecto para no contestada
 
         if (respostaUsuari !== undefined) {
             if (estatDeLaPartida.mostrantCorreccions && dataPreguntas[i]) {
                 const correctaId = Number(dataPreguntas[i].resposta_correcta);
                 const esCorrecta = (Number(respostaUsuari) + 1) === correctaId;
-                simbol = esCorrecta ? "✓" : "X";
+                
+                if (esCorrecta) {
+                    badgeClass = 'badge correcte';
+                    simbol = '✓';
+                } else {
+                    badgeClass = 'badge incorrecte';
+                    simbol = '✗';
+                }
             } else {
-                simbol = "Contestada";
+                badgeClass = 'badge text-bg-primary';
+                simbol = (i + 1).toString();
             }
         }
 
-        htmlString += `Pregunta ${i+1} : <span class='badge text-bg-primary'> ${simbol}</span><br>`;
+        // Hacer que el número de pregunta sea clickeable para navegar
+        htmlString += `
+            <a href="#" class="${badgeClass} pregunta-link" data-pregunta="${i}" 
+               style="text-decoration: none; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center;">
+                ${simbol}
+            </a>
+        `;
     }
-    htmlString += `<br>`;
-    htmlString += `Preguntes correctes: ${estatDeLaPartida.preguntasCorrectas}/${NPREGUNTAS}`;
+    
+    htmlString += `
+            </div>
+        </div>
+        <div class="alert ${estatDeLaPartida.mostrantCorrecciones ? 'alert-info' : 'alert-secondary'}">
+            <strong>Puntuación:</strong> ${estatDeLaPartida.preguntasCorrectas} de ${NPREGUNTAS} correctas
+        </div>
+    `;
 
     marcador.innerHTML = htmlString;
+    
+    // Añadir manejadores de eventos a los enlaces de preguntas
+    document.querySelectorAll('.pregunta-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const preguntaIndex = parseInt(link.getAttribute('data-pregunta'));
+            if (!isNaN(preguntaIndex)) {
+                estatDeLaPartida.preguntaActual = preguntaIndex;
+                mostrarPregunta(preguntaIndex);
+            }
+        });
+    });
 }
 
 function marcarRespuesta(numPregunta, numResposta) {
@@ -169,7 +210,19 @@ function marcarRespuesta(numPregunta, numResposta) {
         }
     }
 
+    // Guardar la respuesta
     estatDeLaPartida.respostesUsuari[numPregunta] = numResposta;
+    
+    // Actualizar la interfaz
+    const answerButtons = document.querySelectorAll(`button[data-pregunta="${numPregunta}"]`);
+    answerButtons.forEach(btn => {
+        // Solo actualizar la clase de selección, no mostrar feedback todavía
+        btn.classList.remove("btn-seleccionada");
+        if (Number(btn.dataset.resposta) === numResposta) {
+            btn.classList.add("btn-seleccionada");
+        }
+    });
+    
     actualitzarContador();
     saveState();
 }
@@ -250,35 +303,86 @@ function mostrarPregunta(idx) {
     const answerButtons = contenidor.querySelectorAll("button[data-pregunta]");
 
     if (!estatDeLaPartida.mostrantCorreccions) {
+        // Configurar manejadores de eventos para los botones de respuesta
         answerButtons.forEach(btn => {
-            btn.addEventListener("click", () => {
-                marcarRespuesta(btn.dataset.pregunta, btn.dataset.resposta);
-
-                contenidor.querySelectorAll(`button[data-pregunta="${btn.dataset.pregunta}"]`)
-                          .forEach(b => b.classList.remove("btn-seleccionada"));
-
-                btn.classList.add("btn-seleccionada");
+            // Quitar cualquier manejador de eventos anterior para evitar duplicados
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            
+            newBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                // Solo permitir cambiar respuestas si no estamos en modo de revisión
+                if (!estatDeLaPartida.mostrantCorreccions) {
+                    marcarRespuesta(newBtn.dataset.pregunta, newBtn.dataset.resposta);
+                }
             });
 
-            if (estatDeLaPartida.respostesUsuari[idx] !== undefined &&
-                Number(btn.dataset.resposta) === estatDeLaPartida.respostesUsuari[idx]) {
-                btn.classList.add("btn-seleccionada");
+            // Mostrar el estado guardado de la respuesta
+            const respuestaUsuario = estatDeLaPartida.respostesUsuari[idx];
+            if (respuestaUsuario !== undefined) {
+                const opcionIdx = Number(newBtn.dataset.resposta);
+                
+                // Limpiar clases previas
+                newBtn.classList.remove("btn-seleccionada");
+                
+                // Solo mostrar la selección, no el feedback
+                if (opcionIdx === respuestaUsuario) {
+                    newBtn.classList.add("btn-seleccionada");
+                }
+                
+                // Si estamos en modo revisión, mostrar los colores
+                if (estatDeLaPartida.mostrantCorreccions) {
+                    const correctaId = Number(preguntaObj.resposta_correcta);
+                    const esCorrecta = (respuestaUsuario + 1) === correctaId;
+                    
+                    if (opcionIdx === respuestaUsuario) {
+                        // Es la opción que seleccionó el usuario
+                        if (esCorrecta) {
+                            newBtn.classList.add("correcta");
+                        } else {
+                            newBtn.classList.add("incorrecta");
+                        }
+                    } 
+                    // Mostrar la respuesta correcta
+                    if (opcionIdx === (correctaId - 1)) {
+                        newBtn.classList.add("resposta-correcta");
+                    }
+                }
             }
         });
     } else {
         const correctaId = Number(preguntaObj.resposta_correcta);
         const correctaIdx0 = correctaId - 1;
         const respuestaUsuario = estatDeLaPartida.respostesUsuari[idx];
+        const esCorrecta = respuestaUsuario !== undefined && (respuestaUsuario + 1) === correctaId;
 
         answerButtons.forEach(btn => {
             const opcionIdx = Number(btn.dataset.resposta);
             btn.disabled = true;
+            btn.classList.remove("btn-primary", "btn-seleccionada");
 
-            if (opcionIdx === correctaIdx0) btn.classList.add("btn-correcta");
-            if (respuestaUsuario !== undefined && respuestaUsuario === opcionIdx && respuestaUsuario !== correctaIdx0) {
-                btn.classList.add("btn-incorrecta");
+            // Marcar la respuesta correcta
+            if (opcionIdx === correctaIdx0) {
+                btn.classList.add("correcta");
+                // Si el usuario no la seleccionó, mostrarla como respuesta correcta
+                if (respuestaUsuario !== correctaIdx0) {
+                    btn.classList.add("resposta-correcta");
+                }
             }
-            btn.classList.remove("btn-seleccionada");
+            
+            // Marcar la respuesta incorrecta del usuario (si la hay)
+            if (respuestaUsuario !== undefined && respuestaUsuario === opcionIdx) {
+                if (respuestaUsuario === correctaIdx0) {
+                    btn.classList.add("correcta");
+                } else {
+                    btn.classList.add("incorrecta");
+                }
+            }
+            
+            // Asegurarse de que los botones no seleccionados no tengan estilos de selección
+            if (respuestaUsuario !== undefined && respuestaUsuario !== opcionIdx && opcionIdx !== correctaIdx0) {
+                btn.classList.remove("btn-seleccionada");
+            }
         });
     }
 

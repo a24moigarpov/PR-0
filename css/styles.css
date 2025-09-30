@@ -1,51 +1,128 @@
-/* Estils bàsics per a la pàgina */
 body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 10px;
-    background-color: #82c7ef;
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 10px;
+  background-color: #82c7ef;
 }
 
 h1 {
-    text-align: center;
-    color: #333;
-    margin: 10px 0;
+  text-align: center;
+  color: #333;
+  margin: 10px 0;
 }
 
 /* Estils per a cada pregunta */
 h3 {
-    margin-top: 5px;
-    margin-bottom: 8px;
-    color: #2c3e50;
-    font-size: 16px;
+  margin-top: 5px;
+  margin-bottom: 8px;
+  color: #2c3e50;
+  font-size: 16px;
 }
 
 img {
-    width: 100%;
-    max-width: 100%;
-    height: 150px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin: 5px 0 10px 0;
-    display: block;
+  width: 100%;
+  max-width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin: 5px 0 10px 0;
+  display: block;
 }
 
 /* Estils per als botons de resposta */
 button {
-    display: block;
-    width: 100%;
-    margin: 3px 0;
-    padding: 8px;
-    background-color: #0c248e;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
+  display: block;
+  width: 100%;
+  margin: 3px 0;
+  padding: 8px;
+  background-color: #0c248e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
 }
+
+/* FEEDBACK DE RESPUESTAS UNA VEZ TERMINADO */
+/* CORRECTA */
+button.correcta,
+button.correcta:disabled,
+button.resposta-correcta,
+button.resposta-correcta:disabled {
+  background-color: #28a745 !important; /* Verde */
+  color: white !important;
+  border: 2px solid #218838 !important;
+  font-weight: bold;
+  opacity: 1 !important;
+}
+
+/* INCORRECTA */
+button.incorrecta,
+button.incorrecta:disabled {
+  background-color: #dc3545 !important; /* Rojo */
+  color: white !important;
+  border: 2px solid #c82333 !important;
+  opacity: 1 !important;
+  text-decoration: line-through;
+}
+
+/* Sombra para la respuesta correcta */
+button.resposta-correcta,
+button.resposta-correcta:disabled {
+  box-shadow: 0 0 8px 2px #28a74555;
+}
+
+/* --- SOLO LOS BOTONES DESHABILITADOS QUE NO SON CORRECCIÓN --- */
+button:disabled:not(.correcta):not(.incorrecta):not(.resposta-correcta) {
+  background-color: #cccccc !important;
+  color: #666666 !important;
+  opacity: 0.7 !important;
+  cursor: not-allowed !important;
+}
+
+/* Estilo para indicar que la sección está deshabilitada */
+.disabled-section {
+  opacity: 0.5;
+  pointer-events: none;
+  position: relative;
+}
+
+button:hover {
+  background-color: #357abd;
+}
+
+.btn-seleccionada {
+  background-color: gray !important;
+  color: white !important;
+}
+
+/* Modo revisión: correcta en verde, incorrecta seleccionada en rojo */
+.btn-correcta {
+  background-color: #28a745 !important;
+  color: #fff !important;
+}
+
+.btn-incorrecta {
+  background-color: #dc3545 !important;
+  color: #fff !important;
+}
+
+/* Bloqueo visual de botones una vez enviado */
+button:disabled {
+  opacity: 0.9;
+  cursor: not-allowed;
+}
+
+button:disabled:hover {
+  background-color: inherit;
+}
+
+.badge.correcte { background-color: #28a745 !important; color: white; }
+.badge.incorrecte { background-color: #dc3545 !important; color: white; }
+.badge.no-contestada { background-color: #6c757d !important; color: white; }
 
 .btn-logout {
   font-size: 0.8rem;      /* Pequeño */
@@ -59,56 +136,10 @@ button {
   position: relative;
 }
 
-/* Estilos para botones deshabilitados */
-button:disabled, 
-button[disabled] {
-    background-color: #cccccc !important;
-    color: #666666 !important;
-    cursor: not-allowed !important;
-    opacity: 0.7;
-}
-
-/* Estilo para indicar que la sección está deshabilitada */
-.disabled-section {
-    opacity: 0.5;
-    pointer-events: none;
-    position: relative;
-}
-
-button:hover {
-    background-color: #357abd;
-}
-
-.btn-seleccionada {
-    background-color: gray !important;
-    color: white !important;
-}
-
-/* Modo revisión: correcta en verde, incorrecta seleccionada en rojo */
-.btn-correcta {
-    background-color: #28a745 !important;
-    color: #fff !important;
-}
-
-.btn-incorrecta {
-    background-color: #dc3545 !important;
-    color: #fff !important;
-}
-
-/* Bloqueo visual de botones una vez enviado */
-button:disabled {
-    opacity: 0.9;
-    cursor: not-allowed;
-}
-
-button:disabled:hover {
-    background-color: inherit;
-}
-
 /* Contenedor de la imagen - ocupa todo el ancho */
 .image-container {
-    width: 100%;
-    margin-bottom: 10px;
+  width: 100%;
+  margin-bottom: 10px;
 }
 
 /* Layout: respuestas a la izquierda, marcador a la derecha (ambos DEBAJO de la foto) */
@@ -243,4 +274,5 @@ button:disabled:hover {
     padding: 12px;
     font-size: 16px;
   }
+
 }
