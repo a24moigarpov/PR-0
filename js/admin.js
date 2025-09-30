@@ -1,7 +1,7 @@
 // Gestió de nom d'usuari amb localStorage
 // Clau de localStorage
 const NAME_KEY = 'usuariNom';
-const ADMIN_USERNAME = 'admin';
+const ADMIN_USERNAME = 'a24moigarpov@2025-key';
 
 function renderUserUI() {
   const form = document.getElementById('userForm');
@@ -73,6 +73,14 @@ function setupUserHandlers() {
         // Si no es admin, proceder normalmente
         localStorage.setItem(NAME_KEY, name);
         renderUserUI();
+        
+        // Iniciar el quiz y el temporizador si estamos en la página principal
+        if (typeof window.resetQuiz === 'function') {
+            window.resetQuiz();
+        }
+        if (typeof window.imprimirJuego === 'function') {
+            window.imprimirJuego();
+        }
       } else {
         // Opcional: feedback senzill
         alert('Si us plau, introdueix un nom vàlid.');
