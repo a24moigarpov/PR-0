@@ -65,4 +65,4 @@ En aquest enllaç pots veure el disseny i prototip creat amb Penpot per al proje
 
 ---
 
-Projecte fet per **Moises Garcia** 🚦
+Projecte fet per **Moises Garcia** 
