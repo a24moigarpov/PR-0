@@ -1,15 +1,10 @@
 // ---------------------------
 // Estado de la partida
 // ---------------------------
-const NPREGUNTAS = 10; // Cambia según el número de preguntas que quieras usar
+const NPREGUNTAS = 10; // Número de preguntas del cuestionario
 
 // Clave de almacenamiento local
 const STORAGE_KEY = "quizStateV1";
-
-//bloquea el scroll
-// window.onscroll = function() {
-//     window.scrollTo(10, 0);
-// };
 
 let estatDeLaPartida = {
     contadorPreguntes: 0,
@@ -39,7 +34,7 @@ function saveState() {
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch (e) {
-        console.warn("No se pudo guardar el estado:", e);
+        console.warn("Error al guardar el estado:", e);
     }
 }
 
@@ -47,18 +42,15 @@ function loadState() {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return null;
-        const parsed = JSON.parse(raw);
-        if (!parsed || typeof parsed !== "object") return null;
-        if (!Array.isArray(parsed.dataPreguntas)) return null;
-        return parsed;
+        return JSON.parse(raw);
     } catch (e) {
-        console.warn("No se pudo cargar el estado:", e);
+        console.warn("Error al cargar el estado:", e);
         return null;
     }
 }
 
 function clearState() {
-    try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+    localStorage.removeItem(STORAGE_KEY);
 }
 
 // Permite reiniciar la partida desde fuera (p.ej., al borrar el nombre)
@@ -102,27 +94,28 @@ window.resetQuiz = resetQuiz;
 // Temporizador
 // ---------------------------
 function iniciarTemporizador() {
-    // No reiniciamos segundos aquí: así podemos reanudar desde el valor guardado
     pararTemporizador();
     estatDeLaPartida.temporizador = setInterval(() => {
         estatDeLaPartida.segundos++;
         mostrarTemporizador();
-        // Persistimos cada 5s para evitar muchas escrituras
+        // Guardar estado cada 5 segundos
         if (estatDeLaPartida.segundos % 5 === 0) saveState();
     }, 1000);
 }
 
 function pararTemporizador() {
-    clearInterval(estatDeLaPartida.temporizador);
+    if (estatDeLaPartida.temporizador) {
+        clearInterval(estatDeLaPartida.temporizador);
+    }
 }
 
 function mostrarTemporizador() {
     const temporizador = document.getElementById("temporizador");
     if (!temporizador) return;
 
-    let minutos = Math.floor(estatDeLaPartida.segundos / 60);
-    let segundos = estatDeLaPartida.segundos % 60;
-    let segundosStr = segundos < 10 ? `0${segundos}` : segundos;
+    const minutos = Math.floor(estatDeLaPartida.segundos / 60);
+    const segundos = estatDeLaPartida.segundos % 60;
+    const segundosStr = segundos < 10 ? `0${segundos}` : segundos;
 
     temporizador.innerHTML = `Tiempo: ${minutos}:${segundosStr} <span class="reloj">⏳</span>`;
 }
@@ -136,57 +129,47 @@ function actualitzarContador() {
     const marcador = document.getElementById("marcador");
     if (!marcador) return;
 
-    let htmlString = `
-        <div class="mb-3">
-            <strong>Progreso:</strong> ${estatDeLaPartida.contadorPreguntes}/${NPREGUNTAS} preguntas respondidas
-        </div>
-        <div class="mb-3">
-            <strong>Preguntas:</strong><br>
-            <div class="d-flex flex-wrap gap-2 mt-2">
-    `;
-    
-    for (let i = 0; i < NPREGUNTAS; i++) {
+    // Generar el HTML de las preguntas
+    const preguntasHTML = Array.from({ length: NPREGUNTAS }, (_, i) => {
         const respostaUsuari = estatDeLaPartida.respostesUsuari[i];
         let badgeClass = 'badge text-bg-secondary no-contestada';
-        let simbol = '?'; // Símbolo por defecto para no contestada
+        let simbol = '?';
 
         if (respostaUsuari !== undefined) {
             if (estatDeLaPartida.mostrantCorreccions && dataPreguntas[i]) {
                 const correctaId = Number(dataPreguntas[i].resposta_correcta);
                 const esCorrecta = (Number(respostaUsuari) + 1) === correctaId;
                 
-                if (esCorrecta) {
-                    badgeClass = 'badge correcte';
-                    simbol = '✓';
-                } else {
-                    badgeClass = 'badge incorrecte';
-                    simbol = '✗';
-                }
+                badgeClass = esCorrecta ? 'badge correcte' : 'badge incorrecte';
+                simbol = esCorrecta ? '✓' : '✗';
             } else {
                 badgeClass = 'badge text-bg-primary';
                 simbol = (i + 1).toString();
             }
         }
 
-        // Hacer que el número de pregunta sea clickeable para navegar
-        htmlString += `
+        return `
             <a href="#" class="${badgeClass} pregunta-link" data-pregunta="${i}" 
                style="text-decoration: none; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center;">
                 ${simbol}
-            </a>
-        `;
-    }
-    
-    htmlString += `
+            </a>`;
+    }).join('');
+
+    // Construir el HTML final
+    marcador.innerHTML = `
+        <div class="mb-3">
+            <strong>Progreso:</strong> ${estatDeLaPartida.contadorPreguntes}/${NPREGUNTAS} preguntas respondidas
+        </div>
+        <div class="mb-3">
+            <strong>Preguntas:</strong><br>
+            <div class="d-flex flex-wrap gap-2 mt-2">
+                ${preguntasHTML}
             </div>
         </div>
-        <div class="alert ${estatDeLaPartida.mostrantCorrecciones ? 'alert-info' : 'alert-secondary'}">
+        <div class="alert ${estatDeLaPartida.mostrantCorreccions ? 'alert-info' : 'alert-secondary'}">
             <strong>Puntuación:</strong> ${estatDeLaPartida.preguntasCorrectas} de ${NPREGUNTAS} correctas
-        </div>
-    `;
+        </div>`;
 
-    marcador.innerHTML = htmlString;
-    
     // Añadir manejadores de eventos a los enlaces de preguntas
     document.querySelectorAll('.pregunta-link').forEach(link => {
         link.addEventListener('click', (e) => {
@@ -218,11 +201,9 @@ function marcarRespuesta(numPregunta, numResposta) {
     // Actualizar la interfaz
     const answerButtons = document.querySelectorAll(`button[data-pregunta="${numPregunta}"]`);
     answerButtons.forEach(btn => {
-        // Solo actualizar la clase de selección, no mostrar feedback todavía
-        btn.classList.remove("btn-seleccionada");
-        if (Number(btn.dataset.resposta) === numResposta) {
-            btn.classList.add("btn-seleccionada");
-        }
+        // Actualizar la clase de selección sin mostrar feedback todavía
+        const isSelected = Number(btn.dataset.resposta) === numResposta;
+        btn.classList.toggle("btn-seleccionada", isSelected);
     });
     
     actualitzarContador();
@@ -236,234 +217,232 @@ window.marcarRespuesta = marcarRespuesta;
 // ---------------------------
 let dataPreguntas = [];
 
-// Preload helper to warm up browser cache for image URLs
+/**
+ * Precarga imágenes para mejorar el rendimiento
+ * @param {string[]} urls - Array de URLs de imágenes a precargar
+ */
 function preloadImages(urls) {
+    if (!Array.isArray(urls)) return;
+    
     try {
-        const unique = Array.from(new Set(urls.filter(Boolean)));
-        unique.forEach(src => {
+        // Filtrar URLs vacías y duplicadas
+        const uniqueUrls = [...new Set(urls.filter(Boolean))];
+        
+        // Precargar cada imagen
+        uniqueUrls.forEach(src => {
             const img = new Image();
             img.decoding = "async";
             img.loading = "eager";
             img.src = src;
-            // We don't need to await; cache will be warmed once loaded
         });
-    } catch (e) {
-        console.warn("preloadImages() error:", e);
+    } catch (error) {
+        console.warn("Error al precargar imágenes:", error);
     }
 }
 
+/**
+ * Muestra una pregunta en el contenedor especificado
+ * @param {number} idx - Índice de la pregunta a mostrar
+ */
 function mostrarPregunta(idx) {
     const contenidor = document.getElementById("questionari");
     if (!contenidor || !dataPreguntas[idx]) return;
 
     const preguntaObj = dataPreguntas[idx];
+    const tieneImagen = Boolean(preguntaObj.imatge);
+    
+    // Construir el HTML de las respuestas
+    const respuestasHTML = preguntaObj.respostes
+        .map((respuesta, j) => 
+            `<button class="btn btn-primary w-100 my-2" 
+                    data-pregunta="${idx}" 
+                    data-resposta="${j}">
+                ${respuesta.etiqueta}
+            </button>`
+        )
+        .join('');
 
-    let htmlString = `<h3>${preguntaObj.pregunta}</h3>`;
-    if (preguntaObj.imatge) {
-        htmlString += `<div class="image-container"><img class="img" src="${preguntaObj.imatge}" alt="Pregunta ${idx+1}" loading="eager" decoding="async" fetchpriority="high"></div>`;
-    }
-
-    // Layout: respuestas a la izquierda y marcador a la derecha, ambos debajo de la imagen
-    htmlString += `<div class="question-layout">`;
-    htmlString += `<div class="answers-col">`;
-
-    for (let j = 0; j < preguntaObj.respostes.length; j++) {
-        htmlString += `<button class="btn btn-primary w-100 my-2" 
-                            data-pregunta="${idx}" 
-                            data-resposta="${j}">
-                            ${preguntaObj.respostes[j].etiqueta}
-                       </button>`;
-    }
-
-    htmlString += `</div>`; // fin answers-col
-    htmlString += `<div class="sidebar-col"><div id="marcador-slot"></div></div>`;
-    htmlString += `</div>`; // fin question-layout
-
-    // Botón Enviar arriba de los botones de navegación (oculto hasta contestar todo)
-    htmlString += `<button id="btnEnviar" class="btn" style="display:none">Enviar Respuestas</button>`;
-
-    // Navegación compacta debajo de todo
-    htmlString += `
+    // Construir el HTML completo
+    const htmlString = `
+        <h3>${preguntaObj.pregunta}</h3>
+        ${tieneImagen ? 
+            `<div class="image-container">
+                <img class="img" src="${preguntaObj.imatge}" 
+                     alt="Pregunta ${idx + 1}" 
+                     loading="eager" 
+                     decoding="async" 
+                     fetchpriority="high">
+            </div>` : ''
+        }
+        <div class="question-layout">
+            <div class="answers-col">
+                ${respuestasHTML}
+            </div>
+            <div class="sidebar-col">
+                <div id="marcador-slot"></div>
+            </div>
+        </div>
+        <button id="btnEnviar" class="btn" style="display:none">Enviar Respuestas</button>
         <div class="nav-pager">
             <button id="btnAnterior" class="btn btn-secondary">Anterior</button>
             <button id="btnSiguiente" class="btn btn-secondary">Siguiente</button>
         </div>
     `;
 
-    // Capturamos referencia al marcador ANTES de reemplazar el contenido
+    // Guardar referencia al marcador antes de modificar el DOM
     const marcador = document.getElementById("marcador");
-
-    // Render del contenido de la pregunta
+    
+    // Renderizar el contenido
     contenidor.innerHTML = htmlString;
 
-    // Recolocar el marcador en la nueva ranura lateral de esta vista
+    // Mover el marcador a su nueva ubicación si es necesario
     const marcadorSlot = contenidor.querySelector("#marcador-slot");
     if (marcador && marcadorSlot && marcador.parentElement !== marcadorSlot) {
         marcadorSlot.appendChild(marcador);
     }
 
-    const answerButtons = contenidor.querySelectorAll("button[data-pregunta]");
-
+    // Configurar manejadores de eventos si no estamos mostrando correcciones
     if (!estatDeLaPartida.mostrantCorreccions) {
-        // Configurar manejadores de eventos para los botones de respuesta
+        const answerButtons = contenidor.querySelectorAll("button[data-pregunta]");
+        
         answerButtons.forEach(btn => {
-            // Quitar cualquier manejador de eventos anterior para evitar duplicados
+            // Clonar el botón para eliminar manejadores anteriores
             const newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
             
+            // Configurar manejador de clic
             newBtn.addEventListener("click", (e) => {
                 e.preventDefault();
-                // Solo permitir cambiar respuestas si no estamos en modo de revisión
                 if (!estatDeLaPartida.mostrantCorreccions) {
-                    marcarRespuesta(newBtn.dataset.pregunta, newBtn.dataset.resposta);
+                    marcarRespuesta(parseInt(newBtn.dataset.pregunta), parseInt(newBtn.dataset.resposta));
                 }
             });
 
             // Mostrar el estado guardado de la respuesta
             const respuestaUsuario = estatDeLaPartida.respostesUsuari[idx];
-            if (respuestaUsuario !== undefined) {
-                const opcionIdx = Number(newBtn.dataset.resposta);
+            if (respuestaUsuario === undefined) return;
+            
+            const opcionIdx = parseInt(newBtn.dataset.resposta);
+            
+            // Actualizar clases del botón
+            newBtn.classList.toggle("btn-seleccionada", opcionIdx === respuestaUsuario);
+            
+            // Si estamos en modo revisión, mostrar retroalimentación visual
+            if (estatDeLaPartida.mostrantCorreccions) {
+                const correctaId = parseInt(preguntaObj.resposta_correcta);
+                const esCorrecta = (respuestaUsuario + 1) === correctaId;
+                const esOpcionCorrecta = opcionIdx === (correctaId - 1);
+                const esOpcionSeleccionada = opcionIdx === respuestaUsuario;
                 
-                // Limpiar clases previas
-                newBtn.classList.remove("btn-seleccionada");
-                
-                // Solo mostrar la selección, no el feedback
-                if (opcionIdx === respuestaUsuario) {
-                    newBtn.classList.add("btn-seleccionada");
+                if (esOpcionSeleccionada) {
+                    newBtn.classList.add(esCorrecta ? "correcta" : "incorrecta");
                 }
-                
-                // Si estamos en modo revisión, mostrar los colores
-                if (estatDeLaPartida.mostrantCorreccions) {
-                    const correctaId = Number(preguntaObj.resposta_correcta);
-                    const esCorrecta = (respuestaUsuario + 1) === correctaId;
-                    
-                    if (opcionIdx === respuestaUsuario) {
-                        // Es la opción que seleccionó el usuario
-                        if (esCorrecta) {
-                            newBtn.classList.add("correcta");
-                        } else {
-                            newBtn.classList.add("incorrecta");
-                        }
-                    } 
-                    // Mostrar la respuesta correcta
-                    if (opcionIdx === (correctaId - 1)) {
-                        newBtn.classList.add("resposta-correcta");
-                    }
+                if (esOpcionCorrecta) {
+                    newBtn.classList.add("resposta-correcta");
                 }
             }
         });
     } else {
-        const correctaId = Number(preguntaObj.resposta_correcta);
+        // Modo de revisión - Mostrar retroalimentación de respuestas
+        const correctaId = parseInt(preguntaObj.resposta_correcta);
         const correctaIdx0 = correctaId - 1;
         const respuestaUsuario = estatDeLaPartida.respostesUsuari[idx];
-        const esCorrecta = respuestaUsuario !== undefined && (respuestaUsuario + 1) === correctaId;
+        const answerButtons = contenidor.querySelectorAll("button[data-pregunta]");
 
         answerButtons.forEach(btn => {
-            const opcionIdx = Number(btn.dataset.resposta);
+            const opcionIdx = parseInt(btn.dataset.resposta);
             btn.disabled = true;
             btn.classList.remove("btn-primary", "btn-seleccionada");
 
-            // Marcar la respuesta correcta
-            if (opcionIdx === correctaIdx0) {
-                btn.classList.add("correcta");
-                // Si el usuario no la seleccionó, mostrarla como respuesta correcta
-                if (respuestaUsuario !== correctaIdx0) {
-                    btn.classList.add("resposta-correcta");
-                }
+            // Determinar el estado de la opción actual
+            const esOpcionCorrecta = opcionIdx === correctaIdx0;
+            const esOpcionSeleccionada = respuestaUsuario === opcionIdx;
+            
+            // Aplicar estilos según el estado de la opción
+            if (esOpcionCorrecta) {
+                btn.classList.add("correcta", "resposta-correcta");
             }
             
-            // Marcar la respuesta incorrecta del usuario (si la hay)
-            if (respuestaUsuario !== undefined && respuestaUsuario === opcionIdx) {
-                if (respuestaUsuario === correctaIdx0) {
-                    btn.classList.add("correcta");
-                } else {
-                    btn.classList.add("incorrecta");
-                }
-            }
-            
-            // Asegurarse de que los botones no seleccionados no tengan estilos de selección
-            if (respuestaUsuario !== undefined && respuestaUsuario !== opcionIdx && opcionIdx !== correctaIdx0) {
-                btn.classList.remove("btn-seleccionada");
+            if (esOpcionSeleccionada) {
+                btn.classList.add(esOpcionCorrecta ? "correcta" : "incorrecta");
             }
         });
     }
 
-    const btnAnterior = document.getElementById("btnAnterior");
-    const btnSiguiente = document.getElementById("btnSiguiente");
-
-    if (btnAnterior) {
-        btnAnterior.disabled = idx === 0;
-        btnAnterior.addEventListener("click", () => {
-            estatDeLaPartida.preguntaActual--;
+    // Configurar navegación entre preguntas
+    const configurarNavegacion = (btn, incremento) => {
+        if (!btn) return;
+        
+        btn.disabled = (incremento < 0 && idx === 0) || 
+                      (incremento > 0 && idx === NPREGUNTAS - 1);
+        
+        // Usar event delegation para manejar los clics
+        btn.onclick = (e) => {
+            e.preventDefault();
+            estatDeLaPartida.preguntaActual += incremento;
             mostrarPregunta(estatDeLaPartida.preguntaActual);
             saveState();
-        });
-    }
+        };
+    };
 
-    if (btnSiguiente) {
-        btnSiguiente.disabled = idx === NPREGUNTAS - 1;
-        btnSiguiente.addEventListener("click", () => {
-            estatDeLaPartida.preguntaActual++;
-            mostrarPregunta(estatDeLaPartida.preguntaActual);
-            saveState();
-        });
-    }
+    configurarNavegacion(document.getElementById("btnAnterior"), -1);
+    configurarNavegacion(document.getElementById("btnSiguiente"), 1);
 
+    // Configurar botón de envío
     const btnEnviar = document.getElementById("btnEnviar");
     if (btnEnviar) {
-        // Si ya se han contestado todas, mostrar el botón tras re-render
-        if (estatDeLaPartida.contadorPreguntes === NPREGUNTAS) {
-            btnEnviar.style.display = "block";
-        }
-        btnEnviar.addEventListener("click", () => {
-            // Transformar respuestas para enviar al backend
-            const respuestasAPI = dataPreguntas.map((p, idx) => ({
-                id: p.id,
-                answer: estatDeLaPartida.respostesUsuari[idx] ?? -1
-            }));
+        // Mostrar el botón solo si se han contestado todas las preguntas
+        btnEnviar.style.display = estatDeLaPartida.contadorPreguntes === NPREGUNTAS ? "block" : "none";
+        
+        btnEnviar.onclick = async (e) => {
+            e.preventDefault();
+            if (btnEnviar.disabled) return;
+            
+            btnEnviar.disabled = true;
+            
+            try {
+                const respuestasAPI = dataPreguntas.map((p, idx) => ({
+                    id: p.id,
+                    answer: estatDeLaPartida.respostesUsuari[idx] ?? -1
+                }));
 
-            const payload = {
-                respuestas: respuestasAPI,
-                tiempo: estatDeLaPartida.segundos,
-                totalContestadas: estatDeLaPartida.contadorPreguntes
-            };
+                const response = await fetch("./php/recollida.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        respuestas: respuestasAPI,
+                        tiempo: estatDeLaPartida.segundos,
+                        totalContestadas: estatDeLaPartida.contadorPreguntes
+                    })
+                });
 
-            fetch("./php/recollida.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            })
-            .then(async res => {
-                const raw = await res.text();
-                try {
-                    return JSON.parse(raw);
-                } catch (e) {
-                    throw new Error("Respuesta no es JSON válido: " + e.message);
-                }
-            })
-            .then(data => {
+                const data = await response.json();
                 console.log("[RECOLLIDA] Respuesta del servidor:", data);
+                
+                // Actualizar estado con los resultados
                 estatDeLaPartida.preguntasCorrectas = data.correctas ?? 0;
                 estatDeLaPartida.mostrantCorreccions = true;
 
-                // Asignar respuesta correcta a cada pregunta
+                // Actualizar respuestas correctas
                 if (data.correctIndex) {
                     dataPreguntas.forEach(p => {
                         p.resposta_correcta = data.correctIndex[p.id];
                     });
                 }
 
+                // Actualizar la interfaz
                 actualitzarContador();
                 pararTemporizador();
                 mostrarPregunta(estatDeLaPartida.preguntaActual);
-
-                btnEnviar.disabled = true;
-                btnEnviar.style.display = "none";
-                // Guardamos el estado final (por si el usuario recarga para ver correcciones)
+                
+                // Guardar estado final
                 saveState();
-            })
-            .catch(err => console.error("[RECOLLIDA] Error enviando respuestas:", err));
-        });
+            } catch (error) {
+                console.error("[RECOLLIDA] Error enviando respuestas:", error);
+                btnEnviar.disabled = false;
+                alert("Error al enviar las respuestas. Por favor, inténtalo de nuevo.");
+            }
+        };
     }
 
     actualitzarContador();
