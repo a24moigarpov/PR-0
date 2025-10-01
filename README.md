@@ -51,6 +51,11 @@ Per accedir al panell **admin** (CRUD de preguntes i resultats), cal introduir u
 
 Només els usuaris que escriguin aquesta clau podran entrar a la gestió d'administració del projecte.
 
+## Penpot diseño
+
+- [Penpot link]([https://pr-0-lyart.vercel.app](https://design.penpot.app/#/workspace?team-id=1ab1fa36-da8e-809d-8004-fb0efc902593&file-id=f5fe9278-89db-81e9-8004-fb0fb177808f&page-id=f5fe9278-89db-81e9-8004-fb0fb1778090))
+
+
 ## Ús
 
 1. Puja la carpeta `PR-0` a un servidor amb suport PHP.
