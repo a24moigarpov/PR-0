@@ -51,10 +51,11 @@ Per accedir al panell **admin** (CRUD de preguntes i resultats), cal introduir u
 
 Només els usuaris que escriguin aquesta clau podran entrar a la gestió d'administració del projecte.
 
-## Penpot diseño
+## Penpot Disseny
 
-- [Penpot link]([https://pr-0-lyart.vercel.app](https://design.penpot.app/#/workspace?team-id=1ab1fa36-da8e-809d-8004-fb0efc902593&file-id=f5fe9278-89db-81e9-8004-fb0fb177808f&page-id=f5fe9278-89db-81e9-8004-fb0fb1778090))
+- [Penpot link](https://design.penpot.app/#/workspace?team-id=1ab1fa36-da8e-809d-8004-fb0efc902593&file-id=f5fe9278-89db-81e9-8004-fb0fb177808f&page-id=f5fe9278-89db-81e9-8004-fb0fb1778090)
 
+En aquest enllaç pots veure el disseny i prototip creat amb Penpot per al projecte. Hi trobaràs l'estructura visual, colors i distribució de les pantalles del test teòric d'autoescola.
 
 ## Ús
 
