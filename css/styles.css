@@ -475,3 +475,50 @@ button:disabled:not(.correcta):not(.incorrecta):not(.resposta-correcta) {
     animation: parpadeo 1s ease-in-out infinite;
   }
 }
+
+/* Botones de usuario */
+#userForm button[type="submit"] {
+  background: linear-gradient(180deg, #4CAF50 0%, #2E7D32 100%);
+  color: white;
+  border: 2px outset #4CAF50;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+}
+
+#userForm button[type="submit"]:hover {
+  background: linear-gradient(180deg, #66BB6A 0%, #388E3C 100%);
+  transform: translateY(-2px);
+}
+
+#userForm button[type="submit"]:active {
+  transform: translateY(0);
+  border-style: inset;
+}
+
+#clearNameBtn {
+  background: linear-gradient(180deg, #f44336 0%, #c62828 100%);
+  color: white;
+  border: 2px outset #f44336;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+}
+
+#clearNameBtn:hover {
+  background: linear-gradient(180deg, #ef5350 0%, #d32f2f 100%);
+  transform: translateY(-2px);
+}
+
+#clearNameBtn:active {
+  transform: translateY(0);
+  border-style: inset;
+}
