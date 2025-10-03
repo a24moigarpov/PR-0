@@ -57,6 +57,10 @@ Només els usuaris que escriguin aquesta clau podran entrar a la gestió d'admin
 
 En aquest enllaç pots veure el disseny i prototip creat amb Penpot per al projecte. Hi trobaràs l'estructura visual, colors i distribució de les pantalles del test teòric d'autoescola.
 
+## 🎞️ Video Youtube
+
+https://youtu.be/Bp5WhETgJ40
+
 ## 📝 Ús
 
 1. 📤 Puja la carpeta `PR-0` a un servidor amb suport PHP.
