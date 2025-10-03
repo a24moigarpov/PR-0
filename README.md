@@ -61,6 +61,11 @@ En aquest enllaç pots veure el disseny i prototip creat amb Penpot per al proje
 
 https://youtu.be/Bp5WhETgJ40
 
+## 👮 Sonar Cloud 
+
+<img width="1612" height="801" alt="image" src="https://github.com/user-attachments/assets/6b694958-281c-4787-8cc2-a689940f1ae1" />
+
+
 ## 📝 Ús
 
 1. 📤 Puja la carpeta `PR-0` a un servidor amb suport PHP.
