@@ -65,6 +65,10 @@ https://youtu.be/Bp5WhETgJ40
 
 <img width="1612" height="801" alt="image" src="https://github.com/user-attachments/assets/6b694958-281c-4787-8cc2-a689940f1ae1" />
 
+## 💻 Git Graph 
+
+<img width="598" height="645" alt="image" src="https://github.com/user-attachments/assets/a2867c05-d012-4c7a-84da-6e23f1cdb872" />
+
 
 ## 📝 Ús
 
